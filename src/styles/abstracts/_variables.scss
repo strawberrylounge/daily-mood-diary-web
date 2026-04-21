@@ -1,0 +1,87 @@
+/* =============================================================
+	Layout
+============================================================= */
+// max width size
+$inner-width: 1200px;
+$inner-width-mobile: 580px;
+
+// media query size
+$screen-full: 2559px;
+$screen-desktop: 1919px;
+$screen-tablet: 1023px;
+$screen-mobile: 699px;
+
+// spacing
+$spacing: 20px;
+$spacing-mobile: 16px;
+
+/* =============================================================
+	Themes, Colors
+============================================================= */
+// themes
+$colors: (
+  "white": #fff,
+  "black": #000,
+  gray900: #121212,
+  gray800: #333333,
+  gray700: #444444,
+  gray600: #666666,
+  gray500: #777777,
+  gray400: #999999,
+  gray300: #b3b3b3,
+  gray200: #cccccc,
+  gray150: #dddddd,
+  gray100: #ebebeb,
+  gray50: #f5f5f5,
+
+  "mint": #1ecad3,
+  "coral-pink": #f04d69,
+  "purple": #6f38e4,
+
+  bg-gray: #f7f8f9,
+);
+
+// colors
+$text-color: #121212 !default;
+
+/* =============================================================
+	Font
+============================================================= */
+$font-family-base: "Pretendard", sans-serif !default;
+$font-weight: (
+  "regular": 400,
+  "bold": 700,
+  "black": 900,
+);
+$font-size: (
+  head-l: 48px,
+  head: 40px,
+  head-s: 32px,
+
+  title-l: 28px,
+  title: 24px,
+  title-s: 22px,
+
+  body-xl: 20px,
+  body-l: 18px,
+  body: 16px,
+  body-s: 15px,
+  body-xs: 14px,
+  body-xxs: 12px,
+  body-xxxs: 11px,
+);
+
+$letter-spacing: -0.5px !default;
+$letter-spacing-mobile: -0.5px !default;
+
+$line-height: 160% !default;
+
+/* =============================================================
+	Path
+============================================================= */
+// img path
+$url: "/online/";
+$img: $url + "images/";
+$img-common: $img + "common/";
+$img-icon: $img-common + "icons/";
+$img-course: $img + "course/";

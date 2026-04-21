@@ -1,0 +1,215 @@
+@use "sass:color";
+
+@use "./variables" as v;
+@use "./responsive" as r;
+
+/* =============================================================
+	Layout
+============================================================= */
+// flex
+@mixin flexbox($justify-content: null, $align-items: center, $gap: null) {
+  display: flex;
+  @if $justify-content {
+    justify-content: $justify-content;
+  }
+  @if $align-items {
+    align-items: $align-items;
+  }
+  @if $gap {
+    gap: $gap;
+  }
+}
+
+// grid
+@mixin grid($columns, $gap: null, $row-gap: null, $column-gap: null) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  @if $gap {
+    gap: $gap;
+  }
+  @if $row-gap {
+    row-gap: $row-gap;
+  }
+  @if $column-gap {
+    column-gap: $column-gap;
+  }
+}
+
+// clearfix
+@mixin clearfix {
+  &::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+}
+
+/* =============================================================
+	Text
+============================================================= */
+// text-ellipsis
+@mixin text-ellipsis(
+  $width: auto,
+  $row: 1,
+  $line-height: 1.25,
+  $hover-visible: false
+) {
+  @if $row > 1 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $row;
+    width: $width;
+    min-width: 0;
+    height: calc(#{$row} * #{$line-height}em);
+    max-height: none;
+  } @else {
+    width: $width;
+    min-width: 0;
+  }
+
+  line-height: $line-height;
+  word-break: keep-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @if $hover-visible {
+    &:hover {
+      overflow: visible;
+    }
+  }
+}
+
+/* =============================================================
+	Image
+============================================================= */
+// 1:1 사이즈 아이콘 : PC 전용
+@mixin icon($name, $width: 24px, $height: 24px, $url: #{v.$img-icon}) {
+  .icon-#{$name} {
+    width: $width;
+    height: $height;
+    line-height: $height;
+    background-image: url("#{$url}icon-#{$name}.png");
+  }
+}
+
+// PC 모바일 겸용 아이콘 : 이미지 2배수 저장 @2x
+@mixin icon2x(
+  $name,
+  $width: 24px,
+  $height: 24px,
+  $min-width: $width,
+  $min-height: $height,
+  $width-m: $width,
+  $height-m: $height,
+  $url: #{v.$img-icon}
+) {
+  .icon-#{$name} {
+    background-image: url("#{$url}icon-#{$name}@2x.png");
+
+    @include r.mobile-tablet {
+      width: $width-m;
+      min-width: $width;
+      height: $height-m;
+      min-height: $height;
+      line-height: $height-m;
+    }
+    @include r.desktop {
+      width: $width;
+      min-width: $width;
+      height: $height;
+      min-height: $height;
+      line-height: $height;
+    }
+  }
+}
+
+// SVG 아이콘
+@mixin icon-svg(
+  $top: null,
+  $left: null,
+  $bottom: null,
+  $right: null,
+  $width: 24px,
+  $height: 24px,
+  $svg-url,
+  $color: currentColor
+) {
+  content: "";
+  position: absolute;
+  top: $top;
+  left: $left;
+  bottom: $bottom;
+  right: $right;
+  display: inline-block;
+  width: $width;
+  height: $height;
+  line-height: $height;
+  background-image: url($svg-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  fill: $color;
+}
+
+/* =============================================================
+	Etc
+============================================================= */
+// vendor prefix
+@mixin prefix($property, $value, $prefixes: ()) {
+  @each $prefix in $prefixes {
+    #{'-' + $prefix + '-' + $property}: $value;
+  }
+  #{$property}: $value;
+}
+
+// calculate px to rem
+@function rem($value) {
+  $rem-value: calc($value / 16) + rem;
+  @return $rem-value;
+}
+
+// scrollbar
+@mixin scrollbar(
+  $thumb-width: 4px,
+  $track-padding: 4px,
+  $thumb-color: v.$gray200,
+  $track-color: transparent
+) {
+  &::-webkit-scrollbar {
+    width: $track-padding * 2 + $thumb-width;
+    height: $track-padding * 2 + $thumb-width;
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+    border-radius: ($track-padding * 2 + $thumb-width) * 0.5;
+    background-clip: padding-box;
+    border: $track-padding solid transparent;
+    &:hover {
+      background-color: color.adjust($thumb-color, $lightness: -5%);
+    }
+    &:active {
+      background-color: color.adjust($thumb-color, $lightness: -10%);
+    }
+  }
+  &::-webkit-scrollbar-track {
+    background-color: $track-color;
+  }
+  &::-webkit-scrollbar-corner {
+    background-color: $track-color;
+  }
+  // Firefox
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: $thumb-color $track-color;
+    }
+    &:hover {
+      scrollbar-color: color.adjust($thumb-color, $lightness: -5%) $track-color;
+    }
+    &:active {
+      scrollbar-color: color.adjust($thumb-color, $lightness: -10%) $track-color;
+    }
+  }
+}

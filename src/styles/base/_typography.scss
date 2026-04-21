@@ -1,0 +1,39 @@
+@use "../abstracts/index" as *;
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+html,
+body,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+p,
+form,
+fieldset,
+input,
+label,
+table,
+tr,
+th,
+td,
+button,
+textarea,
+select,
+a {
+  font-family: $font-family-base;
+  font-weight: font-weight(regular);
+  font-size: font-size(body);
+  color: $text-color;
+  line-height: 160%;
+  letter-spacing: $letter-spacing;
+}

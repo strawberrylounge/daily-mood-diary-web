@@ -1,0 +1,556 @@
+/********************************************************************************************************************/
+/***************************************** | Reset Stylesheet v2.0.0 | **********************************************/
+/***************************************** |       Cynthia Kim       | **********************************************/
+/***************************************** |       2020-02-01        | **********************************************/
+/********************************************************************************************************************/
+/********************************************************************************************************************/
+
+@layer reset {
+  /**
+  * all element reset
+  */
+  html,
+  body,
+  div,
+  span,
+  applet,
+  object,
+  iframe,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  pre,
+  a,
+  abbr,
+  acronym,
+  address,
+  big,
+  cite,
+  code,
+  del,
+  dfn,
+  em,
+  img,
+  ins,
+  kbd,
+  q,
+  s,
+  samp,
+  small,
+  strike,
+  strong,
+  sub,
+  sup,
+  tt,
+  var,
+  b,
+  u,
+  i,
+  center,
+  dl,
+  dt,
+  dd,
+  ol,
+  ul,
+  li,
+  fieldset,
+  form,
+  label,
+  legend,
+  table,
+  caption,
+  tbody,
+  tfoot,
+  thead,
+  tr,
+  th,
+  td,
+  article,
+  aside,
+  canvas,
+  details,
+  embed,
+  figure,
+  figcaption,
+  footer,
+  header,
+  hgroup,
+  main,
+  menu,
+  nav,
+  input,
+  output,
+  label,
+  ruby,
+  section,
+  summary,
+  time,
+  mark,
+  audio,
+  button,
+  video,
+  dialog {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    vertical-align: baseline;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    line-height: inherit;
+    letter-spacing: inherit;
+  }
+
+  /* Document
+   ========================================================================== */
+
+  /**
+  * 1. Correct the line height in all browsers.
+  * 2. Prevent adjustments of font size after orientation changes in iOS.
+  */
+  html,
+  body {
+    height: 100%;
+    min-height: 100%;
+    font-display: optional;
+    line-height: 1.15; /* 1 */
+    letter-spacing: -0.025em;
+    -webkit-text-size-adjust: 100%; /* 2 */
+  }
+  body {
+    width: 100%;
+  }
+
+  /* Sections
+   ========================================================================== */
+
+  /**
+  * Render the `main` element consistently in IE.
+  */
+  main {
+    display: block;
+  }
+
+  /**
+  * html5 'display-role' reset for older browsers
+  */
+  article,
+  aside,
+  details,
+  figcaption,
+  figure,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  section {
+    display: block;
+  }
+
+  /**
+  * Reset table
+  */
+  table {
+    table-layout: fixed;
+  }
+  table,
+  th,
+  td {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    word-wrap: break-word;
+  }
+
+  /* Grouping content
+   ========================================================================== */
+
+  /**
+  Reset liststyle
+  */
+  ol,
+  ul {
+    list-style: none;
+  }
+
+  /**
+  * 1. Add the correct box sizing in Firefox.
+  * 2. Show the overflow in Edge and IE.
+  */
+  hr {
+    box-sizing: content-box; /* 1 */
+    height: 0; /* 1 */
+    overflow: visible; /* 2 */
+  }
+
+  /**
+  * 1. Correct the inheritance and scaling of font size in all browsers.
+  * 2. Correct the odd `em` font sizing in all browsers.
+  */
+  pre {
+    font-family: inherit; /* 1 */
+    font-size: 1em; /* 2 */
+  }
+
+  /*
+  * Add the correct display in Edge, IE 10+, and Firefox.
+  */
+  details {
+    display: block;
+  }
+
+  /*
+  * Add the correct display in all browsers.
+  */
+  summary {
+    display: list-item;
+  }
+
+  /**
+   * Add the correct display in IE 10+.
+  */
+  template {
+    display: none;
+  }
+
+  /* Text-level semantics
+   ========================================================================== */
+
+  /**
+   * 1. a link reset
+   * 2. Remove the gray background on active links in IE 10.
+   */
+  a {
+    display: inline-block;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /**
+  * 1. Remove the bottom border in Chrome 57-
+  * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+  */
+  abbr[title] {
+    border-bottom: none; /* 1 */
+    text-decoration: underline; /* 2 */
+    text-decoration: underline dotted; /* 2 */
+  }
+
+  /**
+  * 1. Correct the inheritance and scaling of font size in all browsers.
+  * 2. Correct the odd `em` font sizing in all browsers.
+  */
+  code,
+  kbd,
+  samp {
+    font-family: inherit; /* 1 */
+    font-size: 1em; /* 2 */
+  }
+
+  /**
+  * Add the correct font size in all browsers.
+  */
+  small {
+    font-size: 80%;
+  }
+
+  /**
+  * Reset text styles
+  */
+  i,
+  em,
+  u,
+  cite {
+    font-style: normal;
+  }
+
+  /**
+  * Prevent `sub` and `sup` elements from affecting the line height in
+  * all browsers.
+  */
+  sub,
+  sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+
+  /**
+  * Reset quote
+  */
+  blockquote,
+  q {
+    border: none;
+    quotes: none;
+  }
+  blockquote:before,
+  blockquote:after,
+  q:before,
+  q:after {
+    content: "";
+    content: none;
+  }
+
+  /**
+  * Bolder for emphasize tags
+  */
+  strong,
+  em,
+  b {
+    font-weight: 700;
+  }
+
+  /**
+  * Maintain the meaning of words regardless of width
+  */
+  p {
+    word-break: keep-all;
+  }
+
+  /* Embedded content
+   ========================================================================== */
+
+  /**
+  * Remove the border on images inside links in IE 10.
+  */
+  img {
+    border-style: none;
+  }
+  iframe {
+    border: none;
+  }
+
+  /**
+  * Correct "inline-block" display not defined in IE 6~9 and Firefox 3.
+  */
+  audio,
+  canvas,
+  video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    max-width: 100%;
+  }
+
+  /**
+  * Prevent modern browsers from displaying "audio" without controls. remove excess height in iOS 5 devices.
+  */
+  audio:not([controls]) {
+    display: none;
+    height: 0;
+  }
+
+  /* Forms
+   ========================================================================== */
+
+  /**
+  * 1. Change the font styles in all browsers.
+  * 2. Remove the margin in Firefox and Safari.
+  */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    margin: 0; /* 2 */
+    font-family: inherit; /* 1 */
+    font-size: 100%; /* 1 */
+    line-height: 1.15; /* 1 */
+  }
+
+  /**
+   * Show the overflow in IE.
+   * 1. Show the overflow in Edge.
+   */
+  button,
+  input {
+    /* 1 */
+    overflow: visible;
+    outline: unset; // CAUTION!!
+  }
+
+  /**
+  * Remove the inheritance of text transform in Edge, Firefox, and IE.
+  * 1. Remove the inheritance of text transform in Firefox.
+  */
+  button,
+  select {
+    /* 1 */
+    text-transform: none;
+  }
+
+  /**
+  * Correct the inability to style clickable types in iOS and Safari.
+  */
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
+    -webkit-appearance: button;
+    vertical-align: middle;
+    border: none;
+    // outline: none; // CAUTION!!
+    background: none;
+    cursor: pointer;
+  }
+
+  /**
+  * Remove the inner border and padding in Firefox.
+  */
+  button::-moz-focus-inner,
+  [type="button"]::-moz-focus-inner,
+  [type="reset"]::-moz-focus-inner,
+  [type="submit"]::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+  }
+
+  /**
+  * Correct the padding in Firefox.
+  */
+  @-moz-document url-prefix() {
+    fieldset {
+      padding: 0.35em 0.75em 0.625em;
+      border: none;
+    }
+  }
+
+  /**
+  * 1. Correct the text wrapping in Edge and IE.
+  * 2. Correct the color inheritance from `fieldset` elements in IE.
+  * 3. Remove the padding so developers are not caught out when they zero out
+  *    `fieldset` elements in all browsers.
+  * 4. Reset
+  */
+  legend {
+    // display: none;
+    box-sizing: border-box; /* 1 */
+    color: inherit; /* 2 */
+    max-width: 100%; /* 1 */
+    padding: 0; /* 3 */
+    white-space: normal; /* 1 */
+  }
+
+  /**
+  * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+  */
+  progress {
+    vertical-align: baseline;
+  }
+
+  /**
+  * 1. Reset textarea
+  * 2. Remove the default vertical scrollbar in IE 10+.
+  */
+  textarea {
+    box-sizing: border-box;
+    font-family: inherit;
+    vertical-align: top;
+    overflow: auto;
+    overflow: overlay;
+    resize: none;
+  }
+
+  /**
+  * 1. Add the correct box sizing in IE 10.
+  * 2. Remove the padding in IE 10.
+  */
+  [type="checkbox"],
+  [type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+  }
+
+  /**
+  * Remove the cursor style of increment and decrement buttons
+  */
+  [type="number"] {
+    -moz-appearance: textfield;
+  }
+  [type="number"]::-webkit-inner-spin-button,
+  [type="number"]::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  /**
+  * Remove the search icon
+  */
+  [type="search"] {
+    &::-ms-clear,
+    &::-ms-reveal {
+      display: none;
+    }
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      display: none;
+    }
+  }
+
+  /**
+  * Hide datepicker's arrow and prompt
+  */
+  [type="date"] {
+    &::-webkit-calendar-picker-indicater {
+      display: none;
+    }
+    &::-webkit-input-placeholder {
+      visibility: hidden !important;
+    }
+    &::-webkit-datetime-edit {
+      visibility: hidden;
+    }
+  }
+
+  /**
+  * 1. Correct the inability to style clickable types in iOS and Safari.
+  * 2. Change font properties to `inherit` in Safari.
+  */
+  ::-webkit-file-upload-button {
+    -webkit-appearance: button; /* 1 */
+    font: inherit; /* 2 */
+  }
+
+  /* etc
+   ========================================================================== */
+
+  /**
+  * Add the correct display in IE 10.
+  */
+  [hidden] {
+    display: none;
+  }
+
+  /**
+  * Dialog reset
+  */
+  dialog {
+    inset-inline-start: auto;
+  }
+
+  /**
+  * Prevent pseudo-element click
+  */
+  ::before,
+  ::after {
+    pointer-events: none;
+  }
+}

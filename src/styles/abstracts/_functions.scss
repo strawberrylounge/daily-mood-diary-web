@@ -1,0 +1,57 @@
+@use "sass:map";
+@use "sass:string";
+@use "sass:list";
+
+@use "./variables" as *;
+
+// 프로젝트 내 sass 버전에 따른 주의사항
+// 최상단에 @use "sass:map", "sass:string" 추가 후, map-get을 map.get으로 변경 (Dart Sass 3.0)
+
+@function color($name) {
+  @return map.get($colors, $name);
+}
+
+@function font-weight($name) {
+  @return map.get($font-weight, $name);
+}
+
+@function font-size($name) {
+  @return map.get($font-size, $name);
+}
+
+@function size($start, $end) {
+  $size: ();
+  @for $i from $start through $end {
+    $value: $i + 0;
+    $size: list.append($size, $value);
+  }
+  @return $size;
+}
+
+@function get-px($value) {
+  @if $value == 0 {
+    @return $value;
+  } @else {
+    @return $value + 0px;
+  }
+}
+
+// 문자열 치환 함수
+@function str-replace($string, $search, $replace: "") {
+  $index: string.index($string, $search);
+  @if $index {
+    @return string.slice($string, 1, $index - 1) + $replace +
+      str-replace(
+        string.slice($string, $index + string.length($search)),
+        $search,
+        $replace
+      );
+  }
+  @return $string;
+}
+
+// URL 인코딩 함수: # -> %23
+@function url-encode-color($color) {
+  $color-string: "#{$color}"; // color 타입을 문자열로 변환
+  @return str-replace($color-string, "#", "%23");
+}

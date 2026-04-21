@@ -1,0 +1,177 @@
+@use "../abstracts/index" as *;
+@use "./icons" as i;
+
+// input
+input.input {
+  // width: 480px;
+  height: 60px;
+  padding: 0 $spacing;
+  border-radius: 10px;
+  border: 1px solid color(gray150);
+  background: color(white);
+  font-size: rem(20);
+  color: color(gray700);
+  line-height: 60px;
+  &::placeholder {
+    color: color(gray300);
+  }
+  &:focus {
+    border-color: color(mint);
+  }
+  &[disabled],
+  &.disabled {
+    background: color(gray50);
+    color: color(gray300);
+    cursor: not-allowed;
+    &:focus {
+      border-color: color(gray150);
+    }
+  }
+
+  @include mobile {
+    height: 50px;
+    font-size: rem(18);
+    line-height: 50px;
+  }
+}
+// checkbox
+.checkbox-wrap {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  user-select: none;
+
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+    // checked state
+    &:checked + .checkbox-icon {
+      border-color: #1db5be;
+      background-color: #1db5be;
+      &::after {
+        opacity: 1;
+      }
+    }
+    // disabled state (사용 X)
+    &:disabled + .checkbox-icon {
+      border-color: #d9d9d9;
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+    // focus state (접근성)
+    &:focus + .checkbox-icon {
+      outline: 2px solid rgba(29, 181, 190, 0.3);
+      outline-offset: 2px;
+    }
+  }
+
+  .checkbox-icon {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid #1db5be;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    // check icon
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 11px;
+      background-image: url("#{$img-icon}icon-check@2x.png");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+  }
+  // label text
+  .checkbox-label {
+    margin-left: 8px;
+    font-size: rem(18);
+    vertical-align: middle;
+  }
+}
+
+// selectbox
+.selectbox-wrap {
+  position: relative;
+  height: 60px;
+  padding: 0 $spacing;
+  border-radius: 10px;
+  border: 1px solid color(gray150);
+  background: color("white");
+  line-height: 60px;
+  cursor: pointer;
+  @include mobile {
+    height: 50px;
+    line-height: 50px;
+  }
+  &::after {
+    @include i.icon-triangle($top: 50%, $right: 20px, $color: color(gray700));
+    transform: translateY(-50%);
+  }
+
+  span.selectbox-label {
+    font-size: rem(20);
+    color: color(gray700);
+    @include mobile {
+      font-size: rem(18);
+    }
+  }
+  ul.selectbox-dropdown {
+    z-index: 99;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    @include flexbox(flex-start, flex-start, 10px);
+    flex-direction: column;
+    width: 100%;
+    height: 0; // 240px
+    max-height: 240px;
+    padding: $spacing;
+    border: 1px solid color(mint);
+    background: color("white");
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: height 0.3s ease, opacity 0.3s ease;
+
+    li {
+      width: 100%;
+      font-size: rem(20);
+      color: color(gray700);
+      @include mobile {
+        font-size: rem(18);
+      }
+      &:hover {
+        color: color(mint);
+      }
+    }
+  }
+
+  // 열렸을 시
+  &.visible {
+    border-color: color(mint);
+    &::after {
+      @include i.icon-triangle($color: color(mint));
+      transform: translateY(-50%) rotate(-180deg);
+    }
+
+    ul.selectbox-dropdown {
+      display: flex;
+      height: 240px;
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}

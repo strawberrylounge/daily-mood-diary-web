@@ -1,0 +1,259 @@
+@use "../abstracts/index" as *;
+
+/* 로그인, 비밀번호 찾기 및 변경 페이지 */
+// 공통
+.page-sign {
+  background: linear-gradient(0deg, rgba(240, 248, 255, 0) 50%, #f0f8ff 100%);
+  .inner {
+    padding-top: 60px;
+    @include mobile {
+      padding-top: 40px;
+    }
+    hgroup {
+      padding-bottom: 40px;
+      text-align: center;
+      @include mobile {
+        padding-bottom: 30px;
+      }
+      h2 {
+        padding-bottom: 4px;
+        font-weight: font-weight(bold);
+        font-size: rem(44);
+        @include mobile {
+          padding-bottom: 0;
+          font-size: rem(36);
+        }
+      }
+      & > p {
+        font-size: rem(20);
+        color: color(gray600);
+        @include mobile {
+          font-size: rem(16);
+        }
+      }
+    }
+    .sign-form-wrap {
+      max-width: 480px;
+      height: 100%;
+      margin: 0 auto;
+      @include mobile {
+        max-width: 100%;
+      }
+      .sign-form {
+        @include flexbox(center, center, 40px);
+        flex-direction: column;
+        @include mobile {
+          gap: 30px;
+        }
+        fieldset {
+          @include flexbox(flex-start, flex-start);
+          flex-direction: column;
+          width: 100%;
+          legend {
+            margin-bottom: 4px;
+            font-weight: font-weight(bold);
+            font-size: rem(18);
+            line-height: 160%;
+          }
+          .form-group {
+            @include flexbox(null, flex-start, 10px);
+            flex-direction: column;
+            width: 100%;
+            input.input {
+              width: 100%;
+            }
+            .form-guide {
+              @include flexbox(null, flex-start, 10px);
+              flex-direction: column;
+              @include mobile {
+                gap: 8px;
+              }
+              & > p {
+                position: relative;
+                display: inline-flex;
+                font-size: rem(18);
+                color: color(gray600);
+                @include mobile {
+                  font-size: rem(16);
+                }
+              }
+            }
+
+            // 영업국/지점 선택 selectbox 정렬
+            &:has(.selectbox-wrap) {
+              @include flexbox(null, center, 20px);
+              flex-direction: row;
+              .selectbox-wrap {
+                width: 50%;
+              }
+              @include mobile {
+                flex-direction: column;
+                gap: 10px;
+                .selectbox-wrap {
+                  width: 100%;
+                }
+              }
+            }
+          }
+        }
+        .btn-group {
+          @include flexbox(null, center, 20px);
+          width: 100%;
+          button.btn {
+            width: 50%;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 로그인
+.page-login {
+  .inner {
+    @include tablet-up {
+      padding-top: 100px;
+    }
+    hgroup {
+      h1 > .logo {
+        width: 580px;
+        height: auto;
+        @include mobile {
+          width: 300px;
+        }
+      }
+      p {
+        margin: 20px 0 40px;
+        font-size: rem(28);
+        color: color(gray600);
+        @include mobile {
+          font-size: rem(16);
+        }
+      }
+    }
+    .login-form-wrap {
+      .login-form {
+        button.btn {
+          width: 100%;
+        }
+      }
+      .form-options {
+        @include flexbox(space-between, center);
+        margin-top: 20px;
+        @include mobile {
+          margin-top: 10px;
+        }
+        a.btn-txt {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+  }
+}
+
+// 비밀번호 찾기: 인증 단계
+.page-find-pw-auth {
+  .inner {
+    .sign-form-wrap {
+      .sign-form {
+        fieldset {
+          @include flexbox();
+          flex-direction: column;
+          gap: 10px;
+          // 010 셀렉트박스 width 조정
+          &:has(.selectbox-wrap) {
+            & > div {
+              @include flexbox(space-between, center, 20px);
+              width: 100%;
+              @include mobile {
+                gap: 10px;
+              }
+              .selectbox-wrap {
+                width: 120px;
+                min-width: 120px;
+                @include mobile {
+                  width: 100px;
+                  min-width: 100px;
+                }
+              }
+            }
+          }
+
+          .timer-wrap {
+            @include flexbox(space-between);
+            width: 100%;
+            height: 60px;
+            padding: 0 $spacing;
+            border-radius: 10px;
+            background: color(bg-gray);
+            .time-info {
+              display: inline-flex;
+              gap: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 비밀번호 찾기: 인증 성공
+.page-find-pw-success {
+  .inner {
+    a.btn {
+      margin-top: 20px;
+      line-height: 70px;
+      @include mobile {
+        width: 100%;
+        margin-top: 0;
+        line-height: 60px;
+      }
+    }
+  }
+}
+
+// 비밀번호 찾기: 인증 실패
+.page-find-pw-failure {
+  .inner {
+    hgroup {
+      h2 {
+        @include flexbox(center);
+        flex-direction: column;
+        color: color("coral-pink");
+        @include mobile {
+          font-size: rem(40);
+        }
+        img {
+          width: 128px;
+          height: auto;
+          @include mobile {
+            width: 80px;
+          }
+        }
+      }
+      p {
+        font-size: rem(24);
+        @include mobile {
+          font-size: rem(18);
+        }
+      }
+    }
+  }
+}
+
+// 비밀번호 변경
+.page-change-pw {
+  .inner {
+    .sign-form-wrap {
+      .sign-form {
+        .btn-group {
+          @include tablet-up {
+            margin-top: 46px;
+          }
+        }
+      }
+    }
+  }
+}

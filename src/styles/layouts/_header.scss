@@ -1,0 +1,12 @@
+@use "../abstracts/index" as *;
+
+#header {
+  @include flexbox(space-between);
+  height: 90px;
+  padding: 0 40px;
+  background: color("white");
+  @include mobile-tablet {
+    height: 64px;
+    padding: 0 16px;
+  }
+}

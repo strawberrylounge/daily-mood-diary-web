@@ -1,0 +1,254 @@
+@use "../abstracts/index" as *;
+
+/* =============================================================
+	Class Generators
+============================================================= */
+// generate padding and margin classes
+$sizes: size(0, 100);
+$position: (
+  "l": "left",
+  "r": "right",
+  "t": "top",
+  "b": bottom,
+);
+$name-map: (
+  "m": "margin",
+  "p": "padding",
+);
+@mixin generate($name-map: (), $position: (), $sizes: ()) {
+  @each $pre-key, $pre-value in $name-map {
+    @each $suf-key, $suf-value in $position {
+      @each $px in $sizes {
+        .#{$pre-key}#{$suf-key}#{$px} {
+          #{$pre-value}-#{$suf-value}: get-px($px) !important;
+        }
+      }
+    }
+  }
+}
+@include generate($name-map, $position, $sizes);
+
+// generate color classes
+@each $color, $value in $colors {
+  .text-#{$color} {
+    color: $value !important;
+  }
+  .bg-#{$color} {
+    background-color: $value !important;
+  }
+  .border-#{$color} {
+    border: 1px solid $value !important;
+  }
+}
+
+// generate font-weight classes
+@each $font-weight, $value in $font-weight {
+  .font-#{$font-weight} {
+    font-weight: $value !important;
+  }
+}
+
+// generate font-size classes
+@each $font-size, $value in $font-size {
+  .font-#{$font-size} {
+    font-size: $value !important;
+  }
+}
+
+/* =============================================================
+	Layout
+============================================================= */
+// inner
+.inner {
+  width: 100%;
+  max-width: $inner-width;
+  margin: 0 auto;
+  padding: 0 $spacing;
+  @include mobile {
+    max-width: $inner-width-mobile;
+    padding: 0 $spacing-mobile 140px;
+  }
+}
+
+// flex
+.flex {
+  @include flexbox();
+}
+
+/* =============================================================
+	Text
+============================================================= */
+// text align
+.text-left {
+  text-align: left !important;
+}
+.text-center {
+  text-align: center !important;
+}
+.text-right {
+  text-align: right !important;
+}
+
+/* =============================================================
+	Image
+============================================================= */
+// icon
+.icon {
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  vertical-align: middle;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
+// image
+// 1. img에 직접 크기 조정(로고, 아이콘 등) - width: 320px / height: auto
+// 2. 부모에 크기 + img에 object-fit(썸네일 등 영역을 채워야 할 경우) || aspect-ratio 사용
+// aspect-ratio: 1 / 1(정사각형), 16 / 9(유튜브), 4 / 3(옛날 TV), 3 / 4(세로로 긴 사진)
+.img {
+  width: 100%;
+  &-responsive {
+    height: auto;
+  }
+  &-cover {
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  &-contain {
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+// 로고
+h1 .logo {
+  width: 300px;
+  height: 28px;
+  // background: url("#{$img-common}h-logo.png") no-repeat center / contain;
+
+  @include tablet {
+    width: 280px;
+    height: 26px;
+    // background: url("#{$img-common}h-logo@2x.png") no-repeat center / contain;
+  }
+  @include mobile {
+    width: 236px;
+    height: 22px;
+    // background: url("#{$img-common}h-logo@2x.png") no-repeat center / contain;
+  }
+}
+
+// 버튼 내 SVG 아이콘 크기 조정
+.btn-icon {
+  @include flexbox(center);
+  svg,
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* =============================================================
+	a11y
+============================================================= */
+// only readable for screen readers
+.sr-only {
+  position: absolute !important;
+  top: auto !important;
+  left: -10000px !important;
+  width: 0px !important;
+  height: 0px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+#skip {
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    &:focus,
+    &:active {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      padding: 15px 20px;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+
+      // 스타일링
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  }
+}
+
+/* =============================================================
+	Etc
+============================================================= */
+// display
+.pc-only {
+  // 태블릿 포함
+  display: none;
+  @include tablet-up {
+    display: block;
+  }
+}
+.m-only {
+  display: none;
+  @include mobile {
+    display: block;
+  }
+}
+
+// 말줄임 + 확장자
+.ellipsis-extension {
+  @include flexbox();
+  .name {
+    @include text-ellipsis();
+    flex: 1;
+    min-width: 0;
+  }
+  .extension {
+    white-space: nowrap;
+  }
+}
+
+// 줄 바꿈 - 단어 기준
+.word-keep-all {
+  word-break: keep-all;
+}
+
+// 스크롤 X
+.fixed {
+  overflow: hidden;
+}
+
+/* =============================================================
+	Custom
+============================================================= */
