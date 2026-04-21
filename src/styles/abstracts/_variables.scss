@@ -47,7 +47,7 @@ $text-color: #121212 !default;
 /* =============================================================
 	Font
 ============================================================= */
-$font-family-base: "Pretendard", sans-serif !default;
+$font-family-base: var(--font-pretendard) !default;
 $font-weight: (
   "regular": 400,
   "bold": 700,
