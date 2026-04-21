@@ -1,0 +1,120 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 480px;
+}
+
+.stepIndicator {
+  text-align: center;
+  font-size: 14px;
+  color: #6b5d52;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #755e4a;
+  margin: 8px 0 4px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c231e;
+}
+
+.scoreRow {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+}
+
+.scoreBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.scoreBtnSelected {
+  border-color: #2c231e;
+  border-width: 3px;
+}
+
+.input {
+  border: 1px solid #e0d3c5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #2c231e;
+  outline: none;
+
+  &:focus {
+    border-color: #755e4a;
+  }
+}
+
+.textarea {
+  border: 1px solid #e0d3c5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #2c231e;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+
+  &:focus {
+    border-color: #755e4a;
+  }
+}
+
+.navBtns {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.navBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e0d3c5;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c231e;
+  cursor: pointer;
+
+  &:hover {
+    background: #faf7f4;
+  }
+}
+
+.navBtnPrimary {
+  background: #755e4a;
+  border-color: #755e4a;
+  color: #fff;
+
+  &:hover {
+    background: #5d4a3a;
+    border-color: #5d4a3a;
+  }
+}
