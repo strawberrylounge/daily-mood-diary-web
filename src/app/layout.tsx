@@ -23,7 +23,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body>{children}</body>
+      <body>
+        <nav id="skip">
+          <ul>
+            <li>
+              <a href="#content">본문 콘텐츠 바로가기</a>
+            </li>
+            {/* <li>
+              <a href="#footer">푸터 바로가기</a>
+            </li> */}
+          </ul>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 }
