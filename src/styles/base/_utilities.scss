@@ -253,7 +253,9 @@ h1 .logo {
 	Custom
 ============================================================= */
 #content {
+  flex: 1;
   height: 100%;
+  padding-bottom: 72px;
   background: color("background");
   & > .inner {
     height: 100%;

@@ -116,7 +116,8 @@
   */
   html,
   body {
-    // height: 100%;
+    display: flex;
+    flex-direction: column;
     min-height: 100%;
     font-display: optional;
     line-height: 1.15; /* 1 */
@@ -124,8 +125,7 @@
     -webkit-text-size-adjust: 100%; /* 2 */
   }
   body {
-    display: flex;
-    flex-direction: column;
+    flex: 1;
     width: 100%;
   }
 
