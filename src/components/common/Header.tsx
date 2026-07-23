@@ -15,23 +15,26 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className={styles.header}>
-      <div className={styles.inner}>
+    <header id="header" className={styles.header}>
+      <div className={`inner ${styles.inner}`}>
         <Link href="/" className={styles.logo}>
           Daily Mood Diary
         </Link>
         <nav className={styles.nav}>
-          {NAV_ITEMS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`${styles.navLink} ${
-                pathname === href ? styles.navLinkActive : ""
-              }`}
-            >
-              {label}
-            </Link>
-          ))}
+          <ul>
+            {NAV_ITEMS.map(({ href, label }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`${styles["nav-link"]} ${
+                    pathname === href ? styles["active"] : ""
+                  }`}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </nav>
       </div>
     </header>

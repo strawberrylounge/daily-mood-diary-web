@@ -1,6 +1,6 @@
 @use "../../styles/abstracts/index" as *;
 
-.overlay {
+.panel-overlay {
   z-index: 99;
   position: fixed;
   inset: 0;
@@ -19,43 +19,33 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 420px;
   display: flex;
   flex-direction: column;
+  width: 460px;
   background: color("surface");
   box-shadow: -4px 0 24px rgba($color: color("black"), $alpha: 0.1);
   transform: translateX(100%);
   transition: transform 0.3s ease;
 
+  .header {
+    flex-shrink: 0;
+    @include flexbox(space-between, center);
+    height: 68px;
+    padding: 0 16px;
+    border-bottom: 1px solid color("border");
+    .title {
+      font-weight: font-weight("bold");
+      font-size: rem(18);
+    }
+  }
+  .body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  // 열었을 때
   &.open {
     transform: translateX(0);
   }
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid color("border");
-  flex-shrink: 0;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.closeBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: color("text-secondary");
-}
-
-.body {
-  overflow-y: auto;
-  padding: 24px;
-  flex: 1;
 }

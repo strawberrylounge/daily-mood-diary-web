@@ -6,11 +6,13 @@ import ReactCalendar from "react-calendar";
 import Modal from "@/components/common/Modal";
 import SidePanel from "@/components/common/SidePanel";
 import RecordForm from "@/components/record/RecordForm";
-import ChevronIcon from "@/assets/icons/chevron.svg";
-import ChevronDoubleIcon from "@/assets/icons/chevron-double.svg";
+
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { supabase } from "@/lib/supabase";
 import { formatDateToYMD } from "@/utils/date";
+
+import IconChevron from "@/assets/icons/chevron.svg";
+import IconChevronDouble from "@/assets/icons/chevron-double.svg";
 
 import styles from "./Calendar.module.scss";
 
@@ -76,12 +78,12 @@ export default function Calendar() {
           onClickDay={handleDayClick}
           locale="ko-KR"
           calendarType="gregory"
-          prevLabel={<ChevronIcon style={{ transform: "rotate(180deg)" }} />}
+          prevLabel={<IconChevron style={{ transform: "rotate(180deg)" }} />}
           prev2Label={
-            <ChevronDoubleIcon style={{ transform: "rotate(180deg)" }} />
+            <IconChevronDouble style={{ transform: "rotate(180deg)" }} />
           }
-          nextLabel={<ChevronIcon />}
-          next2Label={<ChevronDoubleIcon />}
+          nextLabel={<IconChevron />}
+          next2Label={<IconChevronDouble />}
           formatDay={(locale, date) => date.getDate().toString()}
           tileContent={({ date, view }) =>
             view === "month" && recordedDates.has(formatDateToYMD(date)) ? (

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import CloseIcon from "@/assets/icons/close.svg";
+import IconClose from "@/assets/icons/close.svg";
 
 import styles from "./SidePanel.module.scss";
 
@@ -31,16 +31,22 @@ export default function SidePanel({
   }, [isOpen]);
 
   return (
-    <div className={`${styles.overlay} ${isOpen ? styles.visible : ""}`} onClick={onClose}>
-      <div className={`${styles.panel} ${isOpen ? styles.open : ""}`} onClick={(e) => e.stopPropagation()}>
+    <aside
+      className={`${styles["panel-overlay"]} ${isOpen ? styles.visible : ""}`}
+      onClick={onClose}
+    >
+      <div
+        className={`${styles.panel} ${isOpen ? styles.open : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className={styles.header}>
           {title && <h2 className={styles.title}>{title}</h2>}
-          <button className={styles.closeBtn} onClick={onClose}>
-            <CloseIcon />
+          <button className="btn btn-icon btn-close" onClick={onClose}>
+            <IconClose />
           </button>
         </div>
         <div className={styles.body}>{children}</div>
       </div>
-    </div>
+    </aside>
   );
 }

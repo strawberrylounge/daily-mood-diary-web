@@ -1,15 +1,56 @@
+@use "../../styles/abstracts/index" as *;
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-}
+  height: 100%;
+  .step-indicator {
+    @include flexbox(center);
+    gap: 72px;
+    li {
+      @include flexbox(center, center, 4px);
+      flex-direction: column;
+      font-size: rem(14);
+      color: color("text-secondary");
+      // 진행 선
+      &:not(:last-child) {
+        .dot {
+          position: relative;
+          &::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: -88px;
+            width: 72px;
+            height: 2px;
+            background-color: color("text-secondary");
+            transform: translateY(-50%);
+          }
+        }
+      }
 
-.stepIndicator {
-  text-align: center;
-  font-size: 14px;
-  color: #6b5d52;
-  font-weight: 600;
+      .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid color("warning");
+      }
+
+      // 활성화 시
+      &.on {
+        font-weight: font-weight("bold");
+      }
+      // 지나간 단계
+      &.done {
+        .dot {
+          border-color: transparent;
+          background-color: color("warning");
+        }
+      }
+    }
+  }
 }
 
 .subtitle {

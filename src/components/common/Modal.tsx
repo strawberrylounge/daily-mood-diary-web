@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import CloseIcon from "@/assets/icons/close.svg";
+import IconClose from "@/assets/icons/close.svg";
 
 import styles from "./Modal.module.scss";
 
@@ -39,7 +39,7 @@ export default function Modal({
         <div className={styles.header}>
           {title && <h2 className={styles.title}>{title}</h2>}
           <button className={styles.closeBtn} onClick={onClose}>
-            <CloseIcon />
+            <IconClose />
           </button>
         </div>
         <div className={styles.body}>{children}</div>

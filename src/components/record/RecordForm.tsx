@@ -8,6 +8,7 @@ import { SCORE_RANGE, getScoreColor } from "@/utils/score";
 import { formatDateToYMD } from "@/utils/date";
 
 import GuideModal from "./GuideModal";
+
 import styles from "./RecordForm.module.scss";
 
 interface RecordFormProps {
@@ -524,7 +525,7 @@ export default function RecordForm({
               <p className={styles.viewLabel}>특이사항</p>
               <div className={styles.tags}>
                 {BOOLEAN_FIELDS.filter(
-                  ({ key }) => form[BOOLEAN_STATE_KEY[key]]
+                  ({ key }) => form[BOOLEAN_STATE_KEY[key]],
                 ).map(({ key, label }) => (
                   <span key={key} className={styles.tag}>
                     {label}
@@ -630,7 +631,24 @@ export default function RecordForm({
   // mode === "create"
   return (
     <div className={styles.container}>
-      <p className={styles.stepIndicator}>{currentStep} / 3 단계</p>
+      {/* STEP INDICATOR */}
+      <ol className={styles["step-indicator"]}>
+        {Array.from({ length: 3 }, (_, i) => i + 1).map((step) => (
+          <li
+            key={step}
+            className={
+              step === currentStep
+                ? styles.on
+                : step < currentStep
+                  ? styles.done
+                  : ""
+            }
+          >
+            <span className={styles.dot} aria-hidden="true"></span>
+            STEP {step}
+          </li>
+        ))}
+      </ol>
 
       {currentStep === 1 && (
         <div className={styles.field}>
@@ -653,8 +671,8 @@ export default function RecordForm({
             ))}
           </div>
           <p className={styles.hint}>
-            혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수 없을
-            때, 가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
+            혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수 없을 때,
+            가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
           </p>
         </div>
       )}
