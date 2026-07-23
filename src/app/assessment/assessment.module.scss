@@ -1,0 +1,197 @@
+@use "../../styles/abstracts/index" as *;
+
+.page {
+  padding-bottom: 80px;
+}
+
+.header {
+  padding: 40px 20px;
+  background: color("surface");
+  border-bottom: 1px solid color("border");
+  text-align: center;
+}
+
+.title {
+  margin-bottom: 8px;
+  font-size: rem(28);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.subtitle {
+  font-size: rem(16);
+  color: color("text-secondary");
+}
+
+.questionCard {
+  max-width: 640px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: color("surface");
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.questionNumber {
+  margin-bottom: 8px;
+  font-size: rem(14);
+  font-weight: font-weight("bold");
+  color: color("primary");
+}
+
+.questionText {
+  margin-bottom: 16px;
+  font-size: rem(18);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.optionButton {
+  @include flexbox(space-between, center);
+  width: 100%;
+  padding: 16px;
+  border: 2px solid color("border");
+  border-radius: 8px;
+  background: color("background");
+  text-align: left;
+
+  &:hover {
+    border-color: color("primary-light");
+  }
+}
+
+.optionButtonSelected {
+  border-color: color("primary");
+  background: #e6f4fe;
+}
+
+.optionContent {
+  @include flexbox(null, center, 12px);
+  flex: 1;
+}
+
+.radio {
+  @include flexbox(center, center);
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid color("border");
+  border-radius: 50%;
+}
+
+.radioSelected {
+  border-color: color("primary");
+}
+
+.radioInner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: color("primary");
+}
+
+.optionText {
+  font-size: rem(16);
+  color: color("text");
+}
+
+.optionScore {
+  flex-shrink: 0;
+  margin-left: 12px;
+  font-size: rem(14);
+  font-weight: font-weight("bold");
+  color: color("text-secondary");
+}
+
+.footer {
+  max-width: 640px;
+  margin: 32px auto 0;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.progressText {
+  margin-bottom: 16px;
+  font-size: rem(16);
+  color: color("text-secondary");
+}
+
+.errorText {
+  margin-bottom: 12px;
+  font-size: rem(14);
+  color: color("error");
+  font-weight: font-weight("bold");
+}
+
+.submitButton {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  background: color("primary");
+  color: color("white");
+  font-size: rem(18);
+  font-weight: font-weight("bold");
+}
+
+.submitButtonDisabled {
+  background: color("border");
+}
+
+.resultContainer {
+  @include flexbox(center, center);
+  flex-direction: column;
+  min-height: 60vh;
+  padding: 40px;
+  text-align: center;
+}
+
+.resultTitle {
+  margin-bottom: 24px;
+  font-size: rem(32);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.resultScore {
+  font-size: rem(72);
+  font-weight: font-weight("bold");
+  color: color("primary");
+}
+
+.resultTotal {
+  margin-bottom: 32px;
+  font-size: rem(24);
+  color: color("text-secondary");
+}
+
+.resultFeedback {
+  margin-bottom: 48px;
+}
+
+.feedbackEmoji {
+  margin-bottom: 16px;
+  font-size: rem(64);
+}
+
+.feedbackText {
+  font-size: rem(18);
+  color: color("text");
+  line-height: 1.5;
+}
+
+.closeButton {
+  padding: 16px 48px;
+  border: none;
+  border-radius: 8px;
+  background: color("primary");
+  color: color("white");
+  font-size: rem(18);
+  font-weight: font-weight("bold");
+}

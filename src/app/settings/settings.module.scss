@@ -1,0 +1,63 @@
+@use "../../styles/abstracts/index" as *;
+
+.page {
+  padding: 40px 0 80px;
+}
+
+.title {
+  margin-bottom: 24px;
+  font-size: rem(32);
+  font-weight: font-weight("bold");
+  text-align: center;
+  color: color("text");
+}
+
+.section {
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.label {
+  margin-bottom: 12px;
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.infoBox {
+  padding: 16px;
+  border-radius: 12px;
+  background: color("surface");
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.infoLabel {
+  margin-bottom: 4px;
+  font-size: rem(14);
+  color: color("text-secondary");
+}
+
+.infoValue {
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.logoutButton {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  background: color("error");
+  color: color("white");
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

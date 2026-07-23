@@ -1,0 +1,49 @@
+@use "../../styles/abstracts/index" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color("surface");
+  border-bottom: 1px solid color("border");
+
+  height: 72px;
+}
+
+.inner {
+  @include flexbox(space-between, center);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+}
+
+.logo {
+  font-size: rem(18);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.nav {
+  @include flexbox(null, center, 8px);
+}
+
+.navLink {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: rem(15);
+  font-weight: font-weight("bold");
+  color: color("text-secondary");
+
+  &:hover {
+    background: color("background");
+  }
+}
+
+.navLinkActive {
+  background: color("primary");
+  color: color("white");
+
+  &:hover {
+    background: color("primary");
+  }
+}

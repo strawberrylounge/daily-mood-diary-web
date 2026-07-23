@@ -1,81 +1,376 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
+import type { DailyRecord } from "@/types/record";
+import { SCORE_RANGE, getScoreColor } from "@/utils/score";
+import { formatDateToYMD } from "@/utils/date";
+
+import GuideModal from "./GuideModal";
 import styles from "./RecordForm.module.scss";
 
 interface RecordFormProps {
   date: Date;
   onClose: () => void;
+  onRecordChange?: () => void;
 }
 
-const SCORE_RANGE = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+type Mode = "loading" | "view" | "edit" | "create";
 
-const getScoreColor = (score: number) => {
-  const colorMap: Record<number, string> = {
-    "-4": "#C07060",
-    "-3": "#CC8578",
-    "-2": "#D89A90",
-    "-1": "#E4AFA8",
-    "0": "#D9A860",
-    "1": "#A4BFA6",
-    "2": "#8FB193",
-    "3": "#7A9E7E",
-    "4": "#6A8E6E",
-  };
-  return colorMap[score] ?? "#D9A860";
+const BOOLEAN_FIELDS: {
+  key:
+    | "has_menstruation"
+    | "has_binge_eating"
+    | "has_physical_pain"
+    | "has_panic_attack"
+    | "has_exercise"
+    | "has_crying";
+  emoji: string;
+  label: string;
+}[] = [
+  { key: "has_menstruation", emoji: "\u{1F4A7}", label: "생리" },
+  { key: "has_binge_eating", emoji: "\u{1F354}", label: "폭식" },
+  { key: "has_physical_pain", emoji: "\u{1FA79}", label: "신체 통증" },
+  { key: "has_panic_attack", emoji: "\u{1F493}", label: "공황 발작" },
+  { key: "has_crying", emoji: "\u{1F622}", label: "울음" },
+  { key: "has_exercise", emoji: "\u{1F3C3}", label: "운동" },
+];
+
+const BOOLEAN_STATE_KEY = {
+  has_menstruation: "hasMenstruation",
+  has_binge_eating: "hasBingeEating",
+  has_physical_pain: "hasPhysicalPain",
+  has_panic_attack: "hasPanicAttack",
+  has_exercise: "hasExercise",
+  has_crying: "hasCrying",
+} as const;
+
+const GUIDE_LABELS: Record<string, string> = {
+  anxiety: "두려움/소심함/걱정/불안",
+  anger: "짜증/분노",
+  interest: "관심/흥미/즐거움/소비/계획",
+  activity: "활동량",
+  thoughtSpeed: "생각의 속도와 양",
+  thoughtContent: "생각의 내용",
 };
 
-export default function RecordForm({ date, onClose }: RecordFormProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedMoods, setSelectedMoods] = useState<number[]>([]);
-  const [anxiety, setAnxiety] = useState<number | null>(null);
-  const [anger, setAnger] = useState<number | null>(null);
-  const [interest, setInterest] = useState<number | null>(null);
-  const [activity, setActivity] = useState<number | null>(null);
-  const [thoughtSpeed, setThoughtSpeed] = useState<number | null>(null);
-  const [thoughtContent, setThoughtContent] = useState<number | null>(null);
-  const [sleepHours, setSleepHours] = useState("");
-  const [notes, setNotes] = useState("");
+type ScoreKey =
+  | "anxiety"
+  | "anger"
+  | "interest"
+  | "activity"
+  | "thoughtSpeed"
+  | "thoughtContent";
 
-  const handleMoodClick = (value: number) => {
-    if (selectedMoods.includes(value)) {
-      setSelectedMoods(selectedMoods.filter((m) => m !== value));
-    } else if (selectedMoods.length < 2) {
-      setSelectedMoods([...selectedMoods, value]);
-    }
+type FormState = {
+  selectedMoods: number[];
+  anxiety: number | null;
+  anger: number | null;
+  interest: number | null;
+  activity: number | null;
+  thoughtSpeed: number | null;
+  thoughtContent: number | null;
+  sleepHours: string;
+  weight: string;
+  alcoholAmount: string;
+  hasMenstruation: boolean;
+  hasBingeEating: boolean;
+  hasPhysicalPain: boolean;
+  hasPanicAttack: boolean;
+  hasExercise: boolean;
+  hasCrying: boolean;
+  notes: string;
+};
+
+const EMPTY_FORM: FormState = {
+  selectedMoods: [],
+  anxiety: null,
+  anger: null,
+  interest: null,
+  activity: null,
+  thoughtSpeed: null,
+  thoughtContent: null,
+  sleepHours: "",
+  weight: "",
+  alcoholAmount: "0",
+  hasMenstruation: false,
+  hasBingeEating: false,
+  hasPhysicalPain: false,
+  hasPanicAttack: false,
+  hasExercise: false,
+  hasCrying: false,
+  notes: "",
+};
+
+const recordToForm = (record: DailyRecord): FormState => {
+  const moods: number[] = [];
+  if (record.mood_up_score !== null && record.mood_up_score !== undefined) {
+    moods.push(record.mood_up_score);
+  }
+  if (record.mood_down_score !== null && record.mood_down_score !== undefined) {
+    moods.push(record.mood_down_score);
+  }
+
+  return {
+    selectedMoods: moods,
+    anxiety: record.anxiety_score,
+    anger: record.anger_score,
+    interest: record.interest_score,
+    activity: record.activity_score,
+    thoughtSpeed: record.thought_speed_score,
+    thoughtContent: record.thought_content_score,
+    sleepHours: String(record.sleep_hours),
+    weight: record.weight != null ? String(record.weight) : "",
+    alcoholAmount: String(record.has_alcohol),
+    hasMenstruation: record.has_menstruation,
+    hasBingeEating: record.has_binge_eating,
+    hasPhysicalPain: record.has_physical_pain,
+    hasPanicAttack: record.has_panic_attack,
+    hasExercise: record.has_exercise,
+    hasCrying: record.has_crying,
+    notes: record.notes ?? "",
+  };
+};
+
+export default function RecordForm({
+  date,
+  onClose,
+  onRecordChange,
+}: RecordFormProps) {
+  const dateStr = formatDateToYMD(date);
+
+  const [mode, setMode] = useState<Mode>("loading");
+  const [record, setRecord] = useState<DailyRecord | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [openGuide, setOpenGuide] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchRecord = async () => {
+      setMode("loading");
+      setError(null);
+      setCurrentStep(1);
+
+      // TODO: 인증 연동 후 user_id로 필터링 필요 (현재는 인증 미포함)
+      const { data, error: fetchError } = await supabase
+        .from("daily_records")
+        .select("*")
+        .eq("record_date", dateStr)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      if (fetchError) {
+        setError(fetchError.message);
+        setForm(EMPTY_FORM);
+        setMode("create");
+        return;
+      }
+
+      if (data) {
+        setRecord(data as DailyRecord);
+        setForm(recordToForm(data as DailyRecord));
+        setMode("view");
+      } else {
+        setRecord(null);
+        setForm(EMPTY_FORM);
+        setMode("create");
+      }
+    };
+
+    fetchRecord();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dateStr]);
+
+  const setScore = (key: ScoreKey, value: number) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    console.log("저장:", {
-      date,
-      selectedMoods,
-      anxiety,
-      anger,
-      interest,
-      activity,
-      thoughtSpeed,
-      thoughtContent,
-      sleepHours,
-      notes,
+  const toggleMood = (value: number) => {
+    setForm((prev) => {
+      if (prev.selectedMoods.includes(value)) {
+        return {
+          ...prev,
+          selectedMoods: prev.selectedMoods.filter((m) => m !== value),
+        };
+      }
+      if (prev.selectedMoods.length < 2) {
+        return { ...prev, selectedMoods: [...prev.selectedMoods, value] };
+      }
+      return prev;
     });
+  };
+
+  const toggleBoolean = (key: (typeof BOOLEAN_FIELDS)[number]["key"]) => {
+    const stateKey = BOOLEAN_STATE_KEY[key];
+    setForm((prev) => ({ ...prev, [stateKey]: !prev[stateKey] }));
+  };
+
+  const buildPayload = () => {
+    const moodUp = form.selectedMoods.filter((m) => m >= 0);
+    const moodDown = form.selectedMoods.filter((m) => m < 0);
+
+    return {
+      record_date: dateStr,
+      mood_up_score: moodUp.length > 0 ? moodUp[0] : null,
+      mood_down_score: moodDown.length > 0 ? moodDown[0] : null,
+      anxiety_score: form.anxiety ?? 0,
+      anger_score: form.anger ?? 0,
+      interest_score: form.interest ?? 0,
+      activity_score: form.activity ?? 0,
+      thought_speed_score: form.thoughtSpeed ?? 0,
+      thought_content_score: form.thoughtContent ?? 0,
+      sleep_hours: parseFloat(form.sleepHours) || 0,
+      weight: form.weight ? parseFloat(form.weight) : null,
+      has_menstruation: form.hasMenstruation,
+      has_binge_eating: form.hasBingeEating,
+      has_physical_pain: form.hasPhysicalPain,
+      has_panic_attack: form.hasPanicAttack,
+      has_exercise: form.hasExercise,
+      has_crying: form.hasCrying,
+      has_alcohol: parseFloat(form.alcoholAmount) || 0,
+      notes: form.notes || null,
+    };
+  };
+
+  const canProceedToStep2 = form.selectedMoods.length > 0;
+  const canProceedToStep3 =
+    form.anxiety !== null &&
+    form.anger !== null &&
+    form.interest !== null &&
+    form.activity !== null &&
+    form.thoughtSpeed !== null &&
+    form.thoughtContent !== null;
+
+  const handleNext = () => {
+    if (currentStep === 1 && !canProceedToStep2) {
+      setError("기분을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    if (currentStep === 2 && !canProceedToStep3) {
+      setError("모든 항목을 설정해주세요.");
+      return;
+    }
+    setError(null);
+    setCurrentStep((s) => s + 1);
+  };
+
+  const handleCreate = async () => {
+    if (form.selectedMoods.length === 0) {
+      setError("기분을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    if (!form.sleepHours || parseFloat(form.sleepHours) <= 0) {
+      setError("수면 시간을 입력해주세요.");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    // TODO: 인증 연동 후 user_id 추가 필요 (현재는 인증 미포함)
+    const { error: insertError } = await supabase
+      .from("daily_records")
+      .insert(buildPayload());
+
+    setSaving(false);
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+
+    onRecordChange?.();
     onClose();
   };
 
-  const scoreRow = (
-    label: string,
-    value: number | null,
-    setValue: (v: number) => void
-  ) => (
-    <div className={styles.field}>
-      <p className={styles.label}>{label}</p>
+  const handleUpdate = async () => {
+    if (!record) return;
+
+    if (form.selectedMoods.length === 0) {
+      setError("기분을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    if (!form.sleepHours || parseFloat(form.sleepHours) <= 0) {
+      setError("수면 시간을 입력해주세요.");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    const { error: updateError } = await supabase
+      .from("daily_records")
+      .update({ ...buildPayload(), updated_at: new Date().toISOString() })
+      .eq("id", record.id);
+
+    setSaving(false);
+
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+
+    setRecord((prev) => (prev ? { ...prev, ...buildPayload() } : prev));
+    onRecordChange?.();
+    setMode("view");
+  };
+
+  const handleDelete = async () => {
+    if (!record) return;
+    const confirmed = window.confirm("정말로 이 기록을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    setSaving(true);
+    setError(null);
+
+    const { error: deleteError } = await supabase
+      .from("daily_records")
+      .delete()
+      .eq("id", record.id);
+
+    setSaving(false);
+
+    if (deleteError) {
+      setError(deleteError.message);
+      return;
+    }
+
+    onRecordChange?.();
+    onClose();
+  };
+
+  const scoreField = (key: ScoreKey, label: string) => (
+    <div className={styles.field} key={key}>
+      <div className={styles.labelRow}>
+        <p className={styles.label}>{label}</p>
+        <button
+          type="button"
+          className={styles.guideBtn}
+          onClick={() => setOpenGuide(key)}
+          aria-label={`${label} 평가 기준 보기`}
+        >
+          ⓘ
+        </button>
+      </div>
       <div className={styles.scoreRow}>
         {SCORE_RANGE.map((score) => (
           <button
             key={score}
-            className={`${styles.scoreBtn} ${value === score ? styles.scoreBtnSelected : ""}`}
+            type="button"
+            className={`${styles.scoreBtn} ${
+              form[key] === score ? styles.scoreBtnSelected : ""
+            }`}
             style={{ backgroundColor: getScoreColor(score) }}
-            onClick={() => setValue(score)}
+            onClick={() => setScore(key, score)}
           >
             {score}
           </button>
@@ -84,6 +379,255 @@ export default function RecordForm({ date, onClose }: RecordFormProps) {
     </div>
   );
 
+  const booleanToggles = (
+    <div className={styles.field}>
+      <p className={styles.label}>특이사항</p>
+      <div className={styles.boolRow}>
+        {BOOLEAN_FIELDS.map(({ key, emoji, label }) => {
+          const stateKey = BOOLEAN_STATE_KEY[key];
+          const active = form[stateKey];
+          return (
+            <button
+              key={key}
+              type="button"
+              className={`${styles.boolBtn} ${active ? styles.boolBtnActive : ""}`}
+              onClick={() => toggleBoolean(key)}
+            >
+              <span className={styles.boolEmoji}>{emoji}</span>
+              <span>{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const extraFields = (
+    <>
+      <div className={styles.field}>
+        <p className={styles.label}>수면 시간 (시간) *</p>
+        <input
+          className={styles.input}
+          type="number"
+          value={form.sleepHours}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, sleepHours: e.target.value }))
+          }
+          placeholder="예: 7 또는 7.5"
+          min="0"
+          step="0.5"
+        />
+      </div>
+      <div className={styles.field}>
+        <p className={styles.label}>체중 (kg) - 선택사항</p>
+        <input
+          className={styles.input}
+          type="number"
+          value={form.weight}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, weight: e.target.value }))
+          }
+          placeholder="예: 65.5"
+          min="0"
+          step="0.1"
+        />
+      </div>
+      <div className={styles.field}>
+        <p className={styles.label}>음주 (잔)</p>
+        <input
+          className={styles.input}
+          type="number"
+          value={form.alcoholAmount}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, alcoholAmount: e.target.value }))
+          }
+          placeholder="예: 2 또는 1.5"
+          min="0"
+          step="0.5"
+        />
+      </div>
+      {booleanToggles}
+      <div className={styles.field}>
+        <p className={styles.label}>메모 (선택사항)</p>
+        <textarea
+          className={styles.textarea}
+          value={form.notes}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, notes: e.target.value }))
+          }
+          placeholder="특이사항을 기록하세요"
+          rows={4}
+        />
+      </div>
+    </>
+  );
+
+  if (mode === "loading") {
+    return <div className={styles.container}>불러오는 중...</div>;
+  }
+
+  if (mode === "view" && record) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.viewGrid}>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>기분</p>
+            <p className={styles.viewValue}>
+              {form.selectedMoods.join(", ") || "-"}
+            </p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>불안</p>
+            <p className={styles.viewValue}>{form.anxiety}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>짜증/분노</p>
+            <p className={styles.viewValue}>{form.anger}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>관심/흥미</p>
+            <p className={styles.viewValue}>{form.interest}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>활동량</p>
+            <p className={styles.viewValue}>{form.activity}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>생각의 속도/양</p>
+            <p className={styles.viewValue}>{form.thoughtSpeed}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>생각의 내용</p>
+            <p className={styles.viewValue}>{form.thoughtContent}</p>
+          </div>
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>수면 시간</p>
+            <p className={styles.viewValue}>{form.sleepHours}시간</p>
+          </div>
+          {form.weight && (
+            <div className={styles.viewRow}>
+              <p className={styles.viewLabel}>체중</p>
+              <p className={styles.viewValue}>{form.weight}kg</p>
+            </div>
+          )}
+          <div className={styles.viewRow}>
+            <p className={styles.viewLabel}>음주</p>
+            <p className={styles.viewValue}>{form.alcoholAmount}잔</p>
+          </div>
+          {(form.hasMenstruation ||
+            form.hasBingeEating ||
+            form.hasPhysicalPain ||
+            form.hasPanicAttack ||
+            form.hasExercise ||
+            form.hasCrying) && (
+            <div className={styles.viewRow}>
+              <p className={styles.viewLabel}>특이사항</p>
+              <div className={styles.tags}>
+                {BOOLEAN_FIELDS.filter(
+                  ({ key }) => form[BOOLEAN_STATE_KEY[key]]
+                ).map(({ key, label }) => (
+                  <span key={key} className={styles.tag}>
+                    {label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {form.notes && (
+            <div className={styles.viewRow}>
+              <p className={styles.viewLabel}>메모</p>
+              <p className={styles.viewValue}>{form.notes}</p>
+            </div>
+          )}
+        </div>
+
+        {error && <p className={styles.errorText}>{error}</p>}
+
+        <div className={styles.navBtns}>
+          <button
+            type="button"
+            className={styles.navBtn}
+            onClick={() => setMode("edit")}
+          >
+            수정하기
+          </button>
+          <button
+            type="button"
+            className={`${styles.navBtn} ${styles.navBtnDanger}`}
+            onClick={handleDelete}
+            disabled={saving}
+          >
+            {saving ? "삭제 중..." : "삭제하기"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "edit") {
+    return (
+      <div className={styles.container}>
+        <div className={styles.field}>
+          <p className={styles.label}>기분 (최대 2개 선택)</p>
+          <div className={styles.scoreRow}>
+            {SCORE_RANGE.map((val) => (
+              <button
+                key={val}
+                type="button"
+                className={`${styles.scoreBtn} ${
+                  form.selectedMoods.includes(val)
+                    ? styles.scoreBtnSelected
+                    : ""
+                }`}
+                style={{ backgroundColor: getScoreColor(val) }}
+                onClick={() => toggleMood(val)}
+              >
+                {val}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className={styles.subtitle}>정서 반응</p>
+        {scoreField("anxiety", GUIDE_LABELS.anxiety)}
+        {scoreField("anger", GUIDE_LABELS.anger)}
+        <p className={styles.subtitle}>의욕</p>
+        {scoreField("interest", GUIDE_LABELS.interest)}
+        {scoreField("activity", GUIDE_LABELS.activity)}
+        <p className={styles.subtitle}>생각</p>
+        {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
+        {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
+        {extraFields}
+
+        {error && <p className={styles.errorText}>{error}</p>}
+
+        <div className={styles.navBtns}>
+          <button
+            type="button"
+            className={styles.navBtn}
+            onClick={() => {
+              setForm(recordToForm(record!));
+              setError(null);
+              setMode("view");
+            }}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            className={`${styles.navBtn} ${styles.navBtnPrimary}`}
+            onClick={handleUpdate}
+            disabled={saving}
+          >
+            {saving ? "저장 중..." : "수정 완료"}
+          </button>
+        </div>
+
+        <GuideModal guideKey={openGuide} onClose={() => setOpenGuide(null)} />
+      </div>
+    );
+  }
+
+  // mode === "create"
   return (
     <div className={styles.container}>
       <p className={styles.stepIndicator}>{currentStep} / 3 단계</p>
@@ -95,84 +639,79 @@ export default function RecordForm({ date, onClose }: RecordFormProps) {
             {SCORE_RANGE.map((val) => (
               <button
                 key={val}
-                className={`${styles.scoreBtn} ${selectedMoods.includes(val) ? styles.scoreBtnSelected : ""}`}
+                type="button"
+                className={`${styles.scoreBtn} ${
+                  form.selectedMoods.includes(val)
+                    ? styles.scoreBtnSelected
+                    : ""
+                }`}
                 style={{ backgroundColor: getScoreColor(val) }}
-                onClick={() => handleMoodClick(val)}
+                onClick={() => toggleMood(val)}
               >
                 {val}
               </button>
             ))}
           </div>
+          <p className={styles.hint}>
+            혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수 없을
+            때, 가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
+          </p>
         </div>
       )}
 
       {currentStep === 2 && (
         <>
           <p className={styles.subtitle}>정서 반응</p>
-          {scoreRow("두려움/소심함/걱정/불안", anxiety, setAnxiety)}
-          {scoreRow("짜증/분노", anger, setAnger)}
+          {scoreField("anxiety", GUIDE_LABELS.anxiety)}
+          {scoreField("anger", GUIDE_LABELS.anger)}
           <p className={styles.subtitle}>의욕</p>
-          {scoreRow("관심/흥미/즐거움/소비/계획", interest, setInterest)}
-          {scoreRow("활동량", activity, setActivity)}
+          {scoreField("interest", GUIDE_LABELS.interest)}
+          {scoreField("activity", GUIDE_LABELS.activity)}
           <p className={styles.subtitle}>생각</p>
-          {scoreRow("생각의 속도와 양", thoughtSpeed, setThoughtSpeed)}
-          {scoreRow("생각의 내용", thoughtContent, setThoughtContent)}
+          {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
+          {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
         </>
       )}
 
-      {currentStep === 3 && (
-        <>
-          <div className={styles.field}>
-            <p className={styles.label}>수면 시간 (시간)</p>
-            <input
-              className={styles.input}
-              type="number"
-              value={sleepHours}
-              onChange={(e) => setSleepHours(e.target.value)}
-              placeholder="예: 7 또는 7.5"
-              min="0"
-              step="0.5"
-            />
-          </div>
-          <div className={styles.field}>
-            <p className={styles.label}>메모 (선택사항)</p>
-            <textarea
-              className={styles.textarea}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="특이사항을 기록하세요"
-              rows={4}
-            />
-          </div>
-        </>
-      )}
+      {currentStep === 3 && extraFields}
+
+      {error && <p className={styles.errorText}>{error}</p>}
 
       <div className={styles.navBtns}>
         {currentStep > 1 && (
           <button
+            type="button"
             className={styles.navBtn}
-            onClick={() => setCurrentStep((s) => s - 1)}
+            onClick={() => {
+              setError(null);
+              setCurrentStep((s) => s - 1);
+            }}
           >
             이전
           </button>
         )}
         {currentStep < 3 && (
           <button
+            type="button"
             className={`${styles.navBtn} ${styles.navBtnPrimary}`}
-            onClick={() => setCurrentStep((s) => s + 1)}
+            onClick={handleNext}
           >
             다음
           </button>
         )}
         {currentStep === 3 && (
           <button
+            type="button"
             className={`${styles.navBtn} ${styles.navBtnPrimary}`}
-            onClick={handleSave}
+            onClick={handleCreate}
+            disabled={saving}
           >
-            저장하기
+            {saving ? "저장 중..." : "저장하기"}
           </button>
         )}
       </div>
+
+      <GuideModal guideKey={openGuide} onClose={() => setOpenGuide(null)} />
     </div>
   );
 }

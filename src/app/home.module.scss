@@ -1,0 +1,19 @@
+@use "../styles/abstracts/index" as *;
+
+.assessmentButton {
+  display: block;
+  max-width: 320px;
+  margin: 20px auto;
+  padding: 16px;
+  border-radius: 12px;
+  background: color("primary");
+  color: color("white");
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: color("primary-dark");
+  }
+}

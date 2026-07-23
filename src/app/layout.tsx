@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import localFont from "next/font/local";
 
+import Header from "@/components/common/Header";
+
 import "@/styles/main.scss";
 
 const pretendard = localFont({
@@ -34,6 +36,7 @@ export default function RootLayout({
             </li> */}
           </ul>
         </nav>
+        <Header />
         {children}
       </body>
     </html>

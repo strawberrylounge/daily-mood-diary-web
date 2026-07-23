@@ -1,0 +1,161 @@
+@use "../../styles/abstracts/index" as *;
+
+.page {
+  padding: 40px 0 80px;
+}
+
+.title {
+  margin-bottom: 8px;
+  font-size: rem(32);
+  font-weight: font-weight("bold");
+  text-align: center;
+  color: color("text");
+}
+
+.subtitle {
+  margin-bottom: 24px;
+  font-size: rem(16);
+  color: color("text-secondary");
+  text-align: center;
+}
+
+.sectionTitle {
+  margin: 40px 0 16px;
+  font-size: rem(24);
+  font-weight: font-weight("bold");
+  text-align: center;
+  color: color("text");
+}
+
+.chartPlaceholder {
+  @include flexbox(center, center);
+  height: 220px;
+  margin-bottom: 24px;
+  border: 1px dashed color("border");
+  border-radius: 16px;
+  background: color("surface");
+  color: color("text-secondary");
+  font-size: rem(14);
+}
+
+.empty {
+  padding: 40px 0;
+  text-align: center;
+  color: color("text-secondary");
+}
+
+.errorText {
+  padding: 12px;
+  text-align: center;
+  color: color("error");
+  font-weight: font-weight("bold");
+}
+
+.card {
+  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  background: color("surface");
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  @include flexbox(space-between, center);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid color("border");
+}
+
+.monthText {
+  font-size: rem(20);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.countText {
+  font-size: rem(14);
+  color: color("text-secondary");
+}
+
+.changeSection {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid color("border");
+}
+
+.changeSectionTitle {
+  margin-bottom: 12px;
+  font-size: rem(15);
+  font-weight: font-weight("bold");
+  color: color("text");
+}
+
+.changeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.changeItem {
+  @include flexbox(space-between, center);
+}
+
+.changeLabel {
+  font-size: rem(14);
+  color: color("text");
+}
+
+.changeValueRow {
+  @include flexbox(null, center, 8px);
+}
+
+.changeValue {
+  min-width: 40px;
+  font-size: rem(14);
+  font-weight: font-weight("bold");
+  color: color("text");
+  text-align: right;
+}
+
+.changeBadge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: color("background");
+  font-size: rem(12);
+  font-weight: font-weight("bold");
+}
+
+.changeUp {
+  color: color("error");
+}
+
+.changeDown {
+  color: color("success");
+}
+
+.noComparison {
+  font-size: rem(12);
+  color: color("text-secondary");
+  font-style: italic;
+}
+
+.statsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.statItem {
+  @include flexbox(space-between, center);
+}
+
+.statLabel {
+  font-size: rem(14);
+  color: color("text");
+}
+
+.statValue {
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+  color: color("primary");
+}
