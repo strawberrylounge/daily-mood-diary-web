@@ -351,8 +351,8 @@ export default function RecordForm({
 
   const scoreField = (key: ScoreKey, label: string) => (
     <div className={styles.field} key={key}>
-      <div className={styles.labelRow}>
-        <p className={styles.label}>{label}</p>
+      <div className={styles["label-wrap"]}>
+        <h4 className={styles.label}>{label}</h4>
         <button
           type="button"
           className={styles.guideBtn}
@@ -652,34 +652,33 @@ export default function RecordForm({
 
       {currentStep === 1 && (
         <div className={styles.field}>
-          <p className={styles.label}>기분 (최대 2개 선택)</p>
-          <div className={styles.scoreRow}>
+          <h4 className={styles.label}>기분 (최대 2개 선택)</h4>
+          <ol className={styles["score-list"]}>
             {SCORE_RANGE.map((val) => (
-              <button
-                key={val}
-                type="button"
-                className={`${styles.scoreBtn} ${
-                  form.selectedMoods.includes(val)
-                    ? styles.scoreBtnSelected
-                    : ""
-                }`}
-                style={{ backgroundColor: getScoreColor(val) }}
-                onClick={() => toggleMood(val)}
-              >
-                {val}
-              </button>
+              <li key={val}>
+                <button
+                  type="button"
+                  className={`btn ${styles["btn-score"]} ${
+                    form.selectedMoods.includes(val) ? styles.selected : ""
+                  }`}
+                  style={{ backgroundColor: getScoreColor(val) }}
+                  onClick={() => toggleMood(val)}
+                >
+                  {val}
+                </button>
+              </li>
             ))}
-          </div>
+          </ol>
           <p className={styles.hint}>
-            혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수 없을 때,
-            가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
+            &#183; 혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수
+            없을 때, 가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
           </p>
         </div>
       )}
 
       {currentStep === 2 && (
-        <>
-          <p className={styles.subtitle}>정서 반응</p>
+        <div>
+          <h3 className={styles.subtitle}>정서 반응</h3>
           {scoreField("anxiety", GUIDE_LABELS.anxiety)}
           {scoreField("anger", GUIDE_LABELS.anger)}
           <p className={styles.subtitle}>의욕</p>
@@ -688,7 +687,7 @@ export default function RecordForm({
           <p className={styles.subtitle}>생각</p>
           {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
           {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
-        </>
+        </div>
       )}
 
       {currentStep === 3 && extraFields}
