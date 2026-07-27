@@ -355,60 +355,64 @@ export default function RecordForm({
         <h4 className={styles.label}>{label}</h4>
         <button
           type="button"
-          className={styles.guideBtn}
+          className={styles["btn-guide"]}
           onClick={() => setOpenGuide(key)}
           aria-label={`${label} 평가 기준 보기`}
         >
           ⓘ
         </button>
       </div>
-      <div className={styles.scoreRow}>
+      <ol className={styles["score-list"]}>
         {SCORE_RANGE.map((score) => (
-          <button
-            key={score}
-            type="button"
-            className={`${styles.scoreBtn} ${
-              form[key] === score ? styles.scoreBtnSelected : ""
-            }`}
-            style={{ backgroundColor: getScoreColor(score) }}
-            onClick={() => setScore(key, score)}
-          >
-            {score}
-          </button>
+          <li key={score}>
+            <button
+              type="button"
+              className={`${styles["btn-score"]} ${
+                form[key] === score ? styles.selected : ""
+              }`}
+              style={{ backgroundColor: getScoreColor(score) }}
+              onClick={() => setScore(key, score)}
+            >
+              {score}
+            </button>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 
   const booleanToggles = (
     <div className={styles.field}>
-      <p className={styles.label}>특이사항</p>
-      <div className={styles.boolRow}>
+      <h4 className={styles.label}>특이사항</h4>
+      <ul className={styles["boolean-list"]}>
         {BOOLEAN_FIELDS.map(({ key, emoji, label }) => {
           const stateKey = BOOLEAN_STATE_KEY[key];
           const active = form[stateKey];
           return (
-            <button
-              key={key}
-              type="button"
-              className={`${styles.boolBtn} ${active ? styles.boolBtnActive : ""}`}
-              onClick={() => toggleBoolean(key)}
-            >
-              <span className={styles.boolEmoji}>{emoji}</span>
-              <span>{label}</span>
-            </button>
+            <li key={key}>
+              <button
+                type="button"
+                className={`btn ${styles["btn-boolean"]} ${active ? styles.selected : ""}`}
+                onClick={() => toggleBoolean(key)}
+              >
+                <span className={styles.emoji}>{emoji}</span>
+                <span>{label}</span>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 
   const extraFields = (
-    <>
+    <div className={styles["field-wrap"]}>
       <div className={styles.field}>
-        <p className={styles.label}>수면 시간 (시간) *</p>
+        <h4 className={styles.label}>
+          수면 시간(시간) <span className="text-error">*</span>
+        </h4>
         <input
-          className={styles.input}
+          className="input"
           type="number"
           value={form.sleepHours}
           onChange={(e) =>
@@ -420,9 +424,9 @@ export default function RecordForm({
         />
       </div>
       <div className={styles.field}>
-        <p className={styles.label}>체중 (kg) - 선택사항</p>
+        <h4 className={styles.label}>체중(kg)</h4>
         <input
-          className={styles.input}
+          className="input"
           type="number"
           value={form.weight}
           onChange={(e) =>
@@ -434,9 +438,9 @@ export default function RecordForm({
         />
       </div>
       <div className={styles.field}>
-        <p className={styles.label}>음주 (잔)</p>
+        <h4 className={styles.label}>음주(잔)</h4>
         <input
-          className={styles.input}
+          className="input"
           type="number"
           value={form.alcoholAmount}
           onChange={(e) =>
@@ -447,20 +451,22 @@ export default function RecordForm({
           step="0.5"
         />
       </div>
+
       {booleanToggles}
+
       <div className={styles.field}>
-        <p className={styles.label}>메모 (선택사항)</p>
+        <h4 className={styles.label}>메모</h4>
         <textarea
-          className={styles.textarea}
+          className="textarea"
           value={form.notes}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, notes: e.target.value }))
           }
-          placeholder="특이사항을 기록하세요"
+          placeholder="특이사항을 기록하세요."
           rows={4}
         />
       </div>
-    </>
+    </div>
   );
 
   if (mode === "loading") {
@@ -542,7 +548,7 @@ export default function RecordForm({
           )}
         </div>
 
-        {error && <p className={styles.errorText}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.navBtns}>
           <button
@@ -588,18 +594,28 @@ export default function RecordForm({
             ))}
           </div>
         </div>
-        <p className={styles.subtitle}>정서 반응</p>
-        {scoreField("anxiety", GUIDE_LABELS.anxiety)}
-        {scoreField("anger", GUIDE_LABELS.anger)}
-        <p className={styles.subtitle}>의욕</p>
-        {scoreField("interest", GUIDE_LABELS.interest)}
-        {scoreField("activity", GUIDE_LABELS.activity)}
-        <p className={styles.subtitle}>생각</p>
-        {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
-        {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
+
+        <div>
+          <h3 className={styles.subtitle}>정서 반응</h3>
+          <div className={styles.field}>
+            {scoreField("anxiety", GUIDE_LABELS.anxiety)}
+            {scoreField("anger", GUIDE_LABELS.anger)}
+          </div>
+          <h3 className={`${styles.subtitle} mt22`}>의욕</h3>
+          <div className={styles.field}>
+            {scoreField("interest", GUIDE_LABELS.interest)}
+            {scoreField("activity", GUIDE_LABELS.activity)}
+          </div>
+          <h3 className={`${styles.subtitle} mt22`}>생각</h3>
+          <div className={styles.field}>
+            {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
+            {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
+          </div>
+        </div>
+
         {extraFields}
 
-        {error && <p className={styles.errorText}>{error}</p>}
+        {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.navBtns}>
           <button
@@ -630,105 +646,112 @@ export default function RecordForm({
 
   // mode === "create"
   return (
-    <div className={styles.container}>
-      {/* STEP INDICATOR */}
-      <ol className={styles["step-indicator"]}>
-        {Array.from({ length: 3 }, (_, i) => i + 1).map((step) => (
-          <li
-            key={step}
-            className={
-              step === currentStep
-                ? styles.on
-                : step < currentStep
-                  ? styles.done
-                  : ""
-            }
-          >
-            <span className={styles.dot} aria-hidden="true"></span>
-            STEP {step}
-          </li>
-        ))}
-      </ol>
+    <>
+      <div className={styles.container}>
+        {/* STEP INDICATOR */}
+        <ol className={styles["step-indicator"]}>
+          {Array.from({ length: 3 }, (_, i) => i + 1).map((step) => (
+            <li
+              key={step}
+              className={
+                step === currentStep
+                  ? styles.on
+                  : step < currentStep
+                    ? styles.done
+                    : ""
+              }
+            >
+              <span className={styles.dot} aria-hidden="true"></span>
+              STEP {step}
+            </li>
+          ))}
+        </ol>
 
-      {currentStep === 1 && (
-        <div className={styles.field}>
-          <h4 className={styles.label}>기분 (최대 2개 선택)</h4>
-          <ol className={styles["score-list"]}>
-            {SCORE_RANGE.map((val) => (
-              <li key={val}>
-                <button
-                  type="button"
-                  className={`btn ${styles["btn-score"]} ${
-                    form.selectedMoods.includes(val) ? styles.selected : ""
-                  }`}
-                  style={{ backgroundColor: getScoreColor(val) }}
-                  onClick={() => toggleMood(val)}
-                >
-                  {val}
-                </button>
-              </li>
-            ))}
-          </ol>
-          <p className={styles.hint}>
-            &#183; 혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수
-            없을 때, 가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
-          </p>
+        {currentStep === 1 && (
+          <div className={styles.field}>
+            <h4 className={styles.label}>기분 (최대 2개 선택)</h4>
+            <ol className={styles["score-list"]}>
+              {SCORE_RANGE.map((val) => (
+                <li key={val}>
+                  <button
+                    type="button"
+                    className={`btn ${styles["btn-score"]} ${
+                      form.selectedMoods.includes(val) ? styles.selected : ""
+                    }`}
+                    style={{ backgroundColor: getScoreColor(val) }}
+                    onClick={() => toggleMood(val)}
+                  >
+                    {val}
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <p className={styles.hint}>
+              • 혼재상태: 하루에도 여러가지 기분이 있어 한 점수로 표현할 수 없을
+              때, 가장 높은 기분 점수와 가장 낮은 점수 두 개를 선택하세요.
+            </p>
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div>
+            <h3 className={styles.subtitle}>정서 반응</h3>
+            <div className={styles.field}>
+              {scoreField("anxiety", GUIDE_LABELS.anxiety)}
+              {scoreField("anger", GUIDE_LABELS.anger)}
+            </div>
+            <h3 className={`${styles.subtitle} mt22`}>의욕</h3>
+            <div className={styles.field}>
+              {scoreField("interest", GUIDE_LABELS.interest)}
+              {scoreField("activity", GUIDE_LABELS.activity)}
+            </div>
+            <h3 className={`${styles.subtitle} mt22`}>생각</h3>
+            <div className={styles.field}>
+              {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
+              {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
+            </div>
+          </div>
+        )}
+
+        {currentStep === 3 && extraFields}
+
+        {error && <p className={styles.error}>{error}</p>}
+
+        <div className={styles.btns}>
+          {currentStep > 1 && (
+            <button
+              type="button"
+              className={`btn ${styles["btn-nav"]}`}
+              onClick={() => {
+                setError(null);
+                setCurrentStep((s) => s - 1);
+              }}
+            >
+              이전
+            </button>
+          )}
+          {currentStep < 3 && (
+            <button
+              type="button"
+              className={`btn ${styles["btn-nav"]} ${styles["btn-nav-primary"]}`}
+              onClick={handleNext}
+            >
+              다음
+            </button>
+          )}
+          {currentStep === 3 && (
+            <button
+              type="button"
+              className={`btn ${styles["btn-nav"]} ${styles["btn-nav-primary"]}`}
+              onClick={handleCreate}
+              disabled={saving}
+            >
+              {saving ? "저장 중..." : "저장하기"}
+            </button>
+          )}
         </div>
-      )}
-
-      {currentStep === 2 && (
-        <div>
-          <h3 className={styles.subtitle}>정서 반응</h3>
-          {scoreField("anxiety", GUIDE_LABELS.anxiety)}
-          {scoreField("anger", GUIDE_LABELS.anger)}
-          <p className={styles.subtitle}>의욕</p>
-          {scoreField("interest", GUIDE_LABELS.interest)}
-          {scoreField("activity", GUIDE_LABELS.activity)}
-          <p className={styles.subtitle}>생각</p>
-          {scoreField("thoughtSpeed", GUIDE_LABELS.thoughtSpeed)}
-          {scoreField("thoughtContent", GUIDE_LABELS.thoughtContent)}
-        </div>
-      )}
-
-      {currentStep === 3 && extraFields}
-
-      {error && <p className={styles.errorText}>{error}</p>}
-
-      <div className={styles.navBtns}>
-        {currentStep > 1 && (
-          <button
-            type="button"
-            className={styles.navBtn}
-            onClick={() => {
-              setError(null);
-              setCurrentStep((s) => s - 1);
-            }}
-          >
-            이전
-          </button>
-        )}
-        {currentStep < 3 && (
-          <button
-            type="button"
-            className={`${styles.navBtn} ${styles.navBtnPrimary}`}
-            onClick={handleNext}
-          >
-            다음
-          </button>
-        )}
-        {currentStep === 3 && (
-          <button
-            type="button"
-            className={`${styles.navBtn} ${styles.navBtnPrimary}`}
-            onClick={handleCreate}
-            disabled={saving}
-          >
-            {saving ? "저장 중..." : "저장하기"}
-          </button>
-        )}
       </div>
-
       <GuideModal guideKey={openGuide} onClose={() => setOpenGuide(null)} />
-    </div>
+    </>
   );
 }

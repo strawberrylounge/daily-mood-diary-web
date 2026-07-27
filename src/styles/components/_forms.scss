@@ -1,19 +1,19 @@
 @use "../abstracts/index" as *;
-@use "./icons" as i;
+// @use "./icons" as i;
 
 // input
 input.input {
-  // width: 480px;
-  height: 60px;
-  padding: 0 $spacing;
-  border-radius: 10px;
-  border: 1px solid color(gray150);
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid color("border");
   background: color(white);
-  font-size: rem(20);
-  color: color(gray700);
-  line-height: 60px;
+  font-size: rem(16);
+  color: color("text");
+  line-height: 48px;
   &::placeholder {
-    color: color(gray300);
+    color: rgba($color: color("text-secondary"), $alpha: 0.6);
   }
   &:focus {
     border-color: color(mint);
@@ -24,16 +24,29 @@ input.input {
     color: color(gray300);
     cursor: not-allowed;
     &:focus {
-      border-color: color(gray150);
+      border-color: color("primary");
     }
   }
 
   @include mobile {
     height: 50px;
-    font-size: rem(18);
     line-height: 50px;
   }
 }
+
+// textarea
+.textarea {
+  border: 1px solid color("border");
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: rem(14);
+  color: color("text");
+  outline: none;
+  &:focus {
+    border-color: color("primary");
+  }
+}
+
 // checkbox
 .checkbox-wrap {
   position: relative;
@@ -117,7 +130,7 @@ input.input {
     line-height: 50px;
   }
   &::after {
-    @include i.icon-triangle($top: 50%, $right: 20px, $color: color(gray700));
+    // @include i.icon-triangle($top: 50%, $right: 20px, $color: color(gray700));
     transform: translateY(-50%);
   }
 
@@ -144,7 +157,9 @@ input.input {
     overflow-y: auto;
     opacity: 0;
     visibility: hidden;
-    transition: height 0.3s ease, opacity 0.3s ease;
+    transition:
+      height 0.3s ease,
+      opacity 0.3s ease;
 
     li {
       width: 100%;
@@ -163,7 +178,7 @@ input.input {
   &.visible {
     border-color: color(mint);
     &::after {
-      @include i.icon-triangle($color: color(mint));
+      // @include i.icon-triangle($color: color(mint));
       transform: translateY(-50%) rotate(-180deg);
     }
 
