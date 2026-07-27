@@ -87,7 +87,7 @@ export default function Calendar() {
           formatDay={(locale, date) => date.getDate().toString()}
           tileContent={({ date, view }) =>
             view === "month" && recordedDates.has(formatDateToYMD(date)) ? (
-              <span className={styles.recordDot} />
+              <span className={styles["calendar-dot"]} />
             ) : null
           }
         />

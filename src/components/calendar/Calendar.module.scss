@@ -8,6 +8,10 @@
     height: 800px;
     padding: 20px;
     border: 1px solid color("border");
+    @include mobile {
+      height: 500px;
+      padding: $spacing-mobile;
+    }
   }
 
   // 달력 controller
@@ -20,13 +24,23 @@
       align-items: center;
       width: 32px;
       height: 34px;
+      @include mobile {
+        width: 18px;
+        height: 18px;
+      }
     }
   }
   :global(.react-calendar__navigation__label) {
     flex-grow: unset !important;
     width: auto !important;
     padding: 0 40px;
+    font-weight: font-weight("bold");
     font-size: rem(22) !important;
+    @include mobile {
+      height: auto;
+      padding: 0 $spacing-mobile;
+      font-size: rem(20) !important;
+    }
   }
 
   // 달력 body
@@ -46,6 +60,9 @@
   // 요일
   :global(.react-calendar__month-view__weekdays) {
     height: 80px;
+    @include mobile {
+      height: 48px;
+    }
   }
   :global(.react-calendar__month-view__weekdays__weekday) {
     display: inline-flex;
@@ -53,8 +70,14 @@
     align-items: center;
     font-weight: font-weight("bold");
     font-size: rem(22);
+    @include mobile {
+      font-size: rem(20);
+    }
     abbr {
       text-decoration: none;
+      @include mobile {
+        font-size: rem(16);
+      }
     }
   }
   // 주말
@@ -69,22 +92,36 @@
   // 날짜
   :global(.react-calendar__month-view__days) {
     height: calc(100% - 80px);
+    @include mobile {
+      height: calc(100% - 48px);
+    }
   }
   :global(.react-calendar__tile) {
-    font-size: rem(18);
     position: relative;
+    font-size: rem(18);
+    @include mobile {
+      font-size: rem(16);
+    }
   }
   // 다른 달
   :global(.react-calendar__month-view__days__day--neighboringMonth) {
     color: color(gray300);
+    pointer-events: none;
   }
 }
 
-.recordDot {
-  display: block;
+// 기록 있을 시 표기 dot
+.calendar-dot {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  display: inline-block;
   width: 6px;
   height: 6px;
-  margin: 4px auto 0;
   border-radius: 50%;
   background: color("primary");
+  transform: translateX(-50%);
+  @include mobile {
+    bottom: 8px;
+  }
 }

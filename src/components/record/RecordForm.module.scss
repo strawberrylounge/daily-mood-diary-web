@@ -99,6 +99,9 @@ h4.label {
 
     .score-list {
       @include flexbox(space-between, center, 4px);
+      @include mobile {
+        gap: 2px;
+      }
       li {
         .btn-score {
           width: 40px;
@@ -109,6 +112,10 @@ h4.label {
           font-size: rem(12);
           color: color("white");
           transition: border-color 0.15s;
+          @include mobile {
+            width: 34px;
+            height: 34px;
+          }
           &:hover {
             opacity: 0.85;
           }
@@ -117,6 +124,9 @@ h4.label {
           &.selected {
             border-width: 3px;
             border-color: color("text");
+            @include mobile {
+              border-width: 2px;
+            }
           }
         }
       }

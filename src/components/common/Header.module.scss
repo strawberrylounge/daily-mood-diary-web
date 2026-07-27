@@ -8,6 +8,9 @@
   height: 72px;
   border-bottom: 1px solid color("border");
   background: color("surface");
+  @include mobile {
+    height: 56px;
+  }
   .inner {
     @include flexbox(space-between, center);
     height: 100%;

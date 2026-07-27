@@ -38,7 +38,7 @@ export default function Modal({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           {title && <h2 className={styles.title}>{title}</h2>}
-          <button className={styles.closeBtn} onClick={onClose}>
+          <button className={`btn ${styles["btn-close"]}`} onClick={onClose}>
             <IconClose />
           </button>
         </div>
