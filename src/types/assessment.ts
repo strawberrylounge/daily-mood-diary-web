@@ -113,7 +113,11 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
     options: [
       { id: "q5_a1", text: "술을 전혀 마시지 않았다.", score: 5 },
       { id: "q5_a2", text: "하루 정도 한 잔 정도 마셨다.", score: 3 },
-      { id: "q5_a3", text: "7일 정도 한 번에 서너 잔 이내로 마셨다.", score: 1 },
+      {
+        id: "q5_a3",
+        text: "7일 정도 한 번에 서너 잔 이내로 마셨다.",
+        score: 1,
+      },
       {
         id: "q5_a4",
         text: "술을 마신 날이 7일 이상이거나, 과음하는 날이 있었다.",
@@ -125,7 +129,11 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
     id: "q6",
     question: "대인관계 관리",
     options: [
-      { id: "q6_a1", text: "다른 사람들의 반응에 크게 개의치 않았다.", score: 5 },
+      {
+        id: "q6_a1",
+        text: "다른 사람들의 반응에 크게 개의치 않았다.",
+        score: 5,
+      },
       {
         id: "q6_a2",
         text: "다른 사람들의 반응에 영향을 받았지만 오래 담아두지 않았다.",
@@ -146,7 +154,7 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
   {
     id: "q7",
     question:
-      "무리하고 성급하거나 자극적인 일을 피하기\n(과소비, 도박, 과도한 활동, 무리한 약속, 폭식, 약물의 남용, 무리한 계획이나 상상 등)",
+      "무리하고 성급하거나 자극적인 일을 피하기(과소비, 도박, 과도한 활동, 무리한 약속, 폭식, 약물의 남용, 무리한 계획이나 상상 등)",
     options: [
       {
         id: "q7_a1",

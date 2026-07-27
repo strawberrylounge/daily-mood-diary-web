@@ -22,10 +22,7 @@ export default function AssessmentPage() {
   const [showResult, setShowResult] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
-  const handleSelectOption = (
-    questionId: string,
-    option: AssessmentOption
-  ) => {
+  const handleSelectOption = (questionId: string, option: AssessmentOption) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option.id }));
     setSelectedOptions((prev) => ({ ...prev, [questionId]: option }));
   };
@@ -41,7 +38,7 @@ export default function AssessmentPage() {
 
     const score = Object.values(selectedOptions).reduce(
       (sum, option) => sum + option.score,
-      0
+      0,
     );
     const currentMonth = new Date();
     currentMonth.setDate(1);
@@ -88,27 +85,34 @@ export default function AssessmentPage() {
     totalScore >= 80
       ? { emoji: "🎉", text: "훌륭합니다! 매우 잘 관리하고 계시네요." }
       : totalScore >= 60
-        ? { emoji: "👍", text: "잘하고 계십니다! 조금만 더 신경쓰면 더 좋아질 거예요." }
+        ? {
+            emoji: "👍",
+            text: "잘하고 계십니다! 조금만 더 신경쓰면 더 좋아질 거예요.",
+          }
         : totalScore >= 40
           ? { emoji: "💪", text: "괜찮습니다. 좀 더 노력이 필요해 보여요." }
-          : { emoji: "🤔", text: "관리에 더 신경을 쓰실 필요가 있어 보입니다." };
+          : {
+              emoji: "🤔",
+              text: "관리에 더 신경을 쓰실 필요가 있어 보입니다.",
+            };
 
   if (showResult) {
     return (
-      <main id="content" className={styles.page}>
-        <div className={styles.resultContainer}>
-          <h1 className={styles.resultTitle}>평가 완료!</h1>
-          <p className={styles.resultScore}>{totalScore}점</p>
-          <p className={styles.resultTotal}>/ 100점</p>
+      <main id="content" className={styles["page-assessment"]}>
+        <div className={`inner ${styles["result-container"]}`}>
+          <h2 className={styles.title}>평가 완료!</h2>
+          <div className={styles.score}>
+            {totalScore} <span className={styles["total-score"]}>/ 100점</span>
+          </div>
 
-          <div className={styles.resultFeedback}>
-            <p className={styles.feedbackEmoji}>{feedback.emoji}</p>
-            <p className={styles.feedbackText}>{feedback.text}</p>
+          <div className={styles["feedback-wrap"]}>
+            <p className={styles.emoji}>{feedback.emoji}</p>
+            <p className={styles["feedback-text"]}>{feedback.text}</p>
           </div>
 
           <button
             type="button"
-            className={styles.closeButton}
+            className={`btn btn-primary ${styles["btn-close"]}`}
             onClick={handleClose}
           >
             닫기
@@ -119,60 +123,60 @@ export default function AssessmentPage() {
   }
 
   return (
-    <main id="content" className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>월간 셀프 평가</h1>
-        <p className={styles.subtitle}>
-          지난 한 달 동안의 자신을 평가해보세요
-        </p>
-      </div>
+    <main id="content" className={styles["page-assessment"]}>
+      <hgroup className={styles.header}>
+        <h2 className={styles.title}>월간 셀프 평가</h2>
+        <p className={styles.subtitle}>지난 한 달 동안의 자신을 평가해보세요</p>
+      </hgroup>
 
       <div className="inner">
         {ASSESSMENT_QUESTIONS.map((question, index) => (
-          <div key={question.id} className={styles.questionCard}>
-            <p className={styles.questionNumber}>질문 {index + 1}</p>
-            <p className={styles.questionText}>{question.question}</p>
+          <div key={question.id} className={styles["card-question"]}>
+            <hgroup>
+              <span className={styles["question-number"]}>
+                질문 {index + 1}
+              </span>
+              <h3 className={styles["question-title"]}>{question.question}</h3>
+            </hgroup>
 
-            <div className={styles.optionsContainer}>
+            <ul className={styles.options}>
               {question.options.map((option) => {
                 const isSelected = answers[question.id] === option.id;
                 return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={`${styles.optionButton} ${
-                      isSelected ? styles.optionButtonSelected : ""
-                    }`}
-                    onClick={() => handleSelectOption(question.id, option)}
-                  >
-                    <span className={styles.optionContent}>
-                      <span
-                        className={`${styles.radio} ${
-                          isSelected ? styles.radioSelected : ""
-                        }`}
-                      >
-                        {isSelected && <span className={styles.radioInner} />}
-                      </span>
-                      <span className={styles.optionText}>{option.text}</span>
-                    </span>
-                    <span className={styles.optionScore}>{option.score}점</span>
-                  </button>
+                  <li key={option.id}>
+                    <button
+                      type="button"
+                      className={`${styles.option} ${
+                        isSelected ? styles.selected : ""
+                      }`}
+                      onClick={() => handleSelectOption(question.id, option)}
+                    >
+                      <div className="radio-group" role="radiogroup">
+                        <input
+                          type="radio"
+                          className={`radio ${isSelected ? "selected" : ""}`}
+                        />
+                        <label className="radio-label">{option.text}</label>
+                      </div>
+                      <span className={styles.score}>{option.score}점</span>
+                    </button>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
         ))}
 
         <div className={styles.footer}>
-          {error && <p className={styles.errorText}>{error}</p>}
-          <p className={styles.progressText}>
+          {error && <p className={styles.error}>{error}</p>}
+          <p className={styles["progress-text"]}>
             {Object.keys(answers).length} / {ASSESSMENT_QUESTIONS.length} 완료
           </p>
           <button
             type="button"
-            className={`${styles.submitButton} ${
+            className={`btn btn-primary ${styles["btn-submit"]} ${
               Object.keys(answers).length !== ASSESSMENT_QUESTIONS.length
-                ? styles.submitButtonDisabled
+                ? "disabled"
                 : ""
             }`}
             onClick={handleSubmit}
