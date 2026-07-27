@@ -476,50 +476,50 @@ export default function RecordForm({
   if (mode === "view" && record) {
     return (
       <div className={styles.container}>
-        <div className={styles.viewGrid}>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>기분</p>
-            <p className={styles.viewValue}>
+        <div className={styles["view-wrap"]}>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>기분</h3>
+            <div className={styles["view-value"]}>
               {form.selectedMoods.join(", ") || "-"}
-            </p>
+            </div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>불안</p>
-            <p className={styles.viewValue}>{form.anxiety}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>불안</h3>
+            <div className={styles["view-value"]}>{form.anxiety}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>짜증/분노</p>
-            <p className={styles.viewValue}>{form.anger}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>짜증/분노</h3>
+            <div className={styles["view-value"]}>{form.anger}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>관심/흥미</p>
-            <p className={styles.viewValue}>{form.interest}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>관심/흥미</h3>
+            <div className={styles["view-value"]}>{form.interest}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>활동량</p>
-            <p className={styles.viewValue}>{form.activity}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>활동량</h3>
+            <div className={styles["view-value"]}>{form.activity}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>생각의 속도/양</p>
-            <p className={styles.viewValue}>{form.thoughtSpeed}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>생각의 속도/양</h3>
+            <div className={styles["view-value"]}>{form.thoughtSpeed}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>생각의 내용</p>
-            <p className={styles.viewValue}>{form.thoughtContent}</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>생각의 내용</h3>
+            <div className={styles["view-value"]}>{form.thoughtContent}</div>
           </div>
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>수면 시간</p>
-            <p className={styles.viewValue}>{form.sleepHours}시간</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>수면 시간</h3>
+            <div className={styles["view-value"]}>{form.sleepHours}시간</div>
           </div>
           {form.weight && (
-            <div className={styles.viewRow}>
-              <p className={styles.viewLabel}>체중</p>
-              <p className={styles.viewValue}>{form.weight}kg</p>
+            <div className={styles["view-row"]}>
+              <h3 className={styles["view-label"]}>체중</h3>
+              <div className={styles["view-value"]}>{form.weight}kg</div>
             </div>
           )}
-          <div className={styles.viewRow}>
-            <p className={styles.viewLabel}>음주</p>
-            <p className={styles.viewValue}>{form.alcoholAmount}잔</p>
+          <div className={styles["view-row"]}>
+            <h3 className={styles["view-label"]}>음주</h3>
+            <div className={styles["view-value"]}>{form.alcoholAmount}잔</div>
           </div>
           {(form.hasMenstruation ||
             form.hasBingeEating ||
@@ -527,8 +527,8 @@ export default function RecordForm({
             form.hasPanicAttack ||
             form.hasExercise ||
             form.hasCrying) && (
-            <div className={styles.viewRow}>
-              <p className={styles.viewLabel}>특이사항</p>
+            <div className={styles["view-row"]}>
+              <h3 className={styles["view-label"]}>특이사항</h3>
               <div className={styles.tags}>
                 {BOOLEAN_FIELDS.filter(
                   ({ key }) => form[BOOLEAN_STATE_KEY[key]],
@@ -541,26 +541,26 @@ export default function RecordForm({
             </div>
           )}
           {form.notes && (
-            <div className={styles.viewRow}>
-              <p className={styles.viewLabel}>메모</p>
-              <p className={styles.viewValue}>{form.notes}</p>
+            <div className={styles["view-row"]}>
+              <h3 className={styles["view-label"]}>메모</h3>
+              <div className={styles["view-value"]}>{form.notes}</div>
             </div>
           )}
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <div className={styles.navBtns}>
+        <div className={styles.btns}>
           <button
             type="button"
-            className={styles.navBtn}
+            className={`btn ${styles["btn-nav"]}`}
             onClick={() => setMode("edit")}
           >
             수정하기
           </button>
           <button
             type="button"
-            className={`${styles.navBtn} ${styles.navBtnDanger}`}
+            className={`btn ${styles["btn-nav"]} ${styles["btn-nav-danger"]}`}
             onClick={handleDelete}
             disabled={saving}
           >
@@ -575,24 +575,23 @@ export default function RecordForm({
     return (
       <div className={styles.container}>
         <div className={styles.field}>
-          <p className={styles.label}>기분 (최대 2개 선택)</p>
-          <div className={styles.scoreRow}>
+          <h4 className={styles.label}>기분(최대 2개 선택)</h4>
+          <ol className={styles["score-list"]}>
             {SCORE_RANGE.map((val) => (
-              <button
-                key={val}
-                type="button"
-                className={`${styles.scoreBtn} ${
-                  form.selectedMoods.includes(val)
-                    ? styles.scoreBtnSelected
-                    : ""
-                }`}
-                style={{ backgroundColor: getScoreColor(val) }}
-                onClick={() => toggleMood(val)}
-              >
-                {val}
-              </button>
+              <li key={val}>
+                <button
+                  type="button"
+                  className={`btn ${styles["btn-score"]} ${
+                    form.selectedMoods.includes(val) ? styles.selected : ""
+                  }`}
+                  style={{ backgroundColor: getScoreColor(val) }}
+                  onClick={() => toggleMood(val)}
+                >
+                  {val}
+                </button>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
 
         <div>
@@ -617,10 +616,10 @@ export default function RecordForm({
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <div className={styles.navBtns}>
+        <div className={styles.btns}>
           <button
             type="button"
-            className={styles.navBtn}
+            className={`btn ${styles["btn-nav"]}`}
             onClick={() => {
               setForm(recordToForm(record!));
               setError(null);
@@ -631,7 +630,7 @@ export default function RecordForm({
           </button>
           <button
             type="button"
-            className={`${styles.navBtn} ${styles.navBtnPrimary}`}
+            className={`btn ${styles["btn-nav"]} ${styles["btn-nav-primary"]}`}
             onClick={handleUpdate}
             disabled={saving}
           >
@@ -669,7 +668,7 @@ export default function RecordForm({
 
         {currentStep === 1 && (
           <div className={styles.field}>
-            <h4 className={styles.label}>기분 (최대 2개 선택)</h4>
+            <h4 className={styles.label}>기분(최대 2개 선택)</h4>
             <ol className={styles["score-list"]}>
               {SCORE_RANGE.map((val) => (
                 <li key={val}>
