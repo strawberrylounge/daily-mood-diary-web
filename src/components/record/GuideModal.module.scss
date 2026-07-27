@@ -1,61 +1,65 @@
+@use "../../styles/abstracts/index" as *;
+
 .container {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-width: 420px;
-  max-width: 560px;
-}
 
-.subtitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: #755e4a;
-}
+  .subtitle {
+    font-weight: font-weight("bold");
+    color: color("primary-dark");
+  }
+  .description {
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid color("border");
+    font-size: rem(14);
+    color: color("text");
+    word-break: keep-all;
+  }
+  .table {
+    table-layout: fixed;
+    width: 100%;
+    border: 1px solid color("border");
 
-.description {
-  padding: 12px;
-  border: 1px solid #e0d3c5;
-  border-radius: 8px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #2c231e;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #e0d3c5;
-  border-radius: 8px;
-  overflow: hidden;
-  font-size: 13px;
-
-  th,
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #e0d3c5;
-    border-right: 1px solid #e0d3c5;
-    text-align: left;
-    vertical-align: top;
-
-    &:first-child {
-      width: 56px;
+    th,
+    td {
       text-align: center;
-      font-weight: 700;
-      color: #fff;
+      vertical-align: middle;
     }
 
-    &:last-child {
-      border-right: none;
+    thead {
+      tr {
+        th {
+          height: 48px;
+          border-bottom: 1px solid color("border");
+          background: color("primary");
+          font-weight: font-weight("bold");
+          color: color("white");
+          &:first-child {
+            border-right: 1px solid color("border");
+          }
+        }
+      }
     }
-  }
-
-  thead th {
-    background: #755e4a;
-    color: #fff;
-    font-weight: 700;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
+    tbody {
+      tr {
+        &:not(:last-child) {
+          border-bottom: 1px solid color("border");
+        }
+        td {
+          padding: 12px;
+          font-size: rem(15);
+          &:first-child {
+            border-right: 1px solid color("border");
+            color: color("white");
+          }
+          &:last-child {
+            color: color("text");
+            text-align: left;
+          }
+        }
+      }
+    }
   }
 }
