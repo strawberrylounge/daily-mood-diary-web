@@ -109,6 +109,11 @@
     color: color(gray300);
     pointer-events: none;
   }
+  // 오늘보다 미래인 날짜 (같은 달 포함)
+  :global(.react-calendar__tile[disabled]) {
+    color: color(gray300);
+    pointer-events: none;
+  }
 }
 
 // 기록 있을 시 표기 dot

@@ -1,12 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import type { TooltipContentProps } from "recharts";
 
 import { supabase } from "@/lib/supabase";
 import { formatDateToYMD } from "@/utils/date";
 import type { DailyRecord } from "@/types/record";
 
 import styles from "./stats.module.scss";
+
+const SERIES_COLOR = {
+  moodUp: "#2a78d6",
+  moodDown: "#e34948",
+} as const;
+
+const formatMonthShort = (month: string) => {
+  const [, mon] = month.split("-");
+  return `${parseInt(mon, 10)}월`;
+};
+
+const MoodTooltip = ({ active, payload, label }: TooltipContentProps) => {
+  if (!active || !payload?.length) return null;
+
+  const moodUp = payload.find((p) => p.dataKey === "moodUp")?.value;
+  const moodDown = payload.find((p) => p.dataKey === "moodDown")?.value;
+
+  return (
+    <div className={styles.chartTooltip}>
+      <p className={styles.tooltipMonth}>{label}</p>
+      {typeof moodUp === "number" && (
+        <div className={styles.tooltipRow}>
+          <span
+            className={styles.tooltipKey}
+            style={{ "--dot-color": SERIES_COLOR.moodUp } as React.CSSProperties}
+          >
+            기분 Up
+          </span>
+          <span className={styles.tooltipValue}>{moodUp.toFixed(1)}</span>
+        </div>
+      )}
+      {typeof moodDown === "number" && (
+        <div className={styles.tooltipRow}>
+          <span
+            className={styles.tooltipKey}
+            style={{ "--dot-color": SERIES_COLOR.moodDown } as React.CSSProperties}
+          >
+            기분 Down
+          </span>
+          <span className={styles.tooltipValue}>{moodDown.toFixed(1)}</span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface MonthlyStats {
   month: string;
@@ -48,6 +104,21 @@ export default function StatsPage() {
   const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const chartData = useMemo(
+    () =>
+      [...monthlyStats]
+        .sort((a, b) => a.month.localeCompare(b.month))
+        .map((stat) => ({
+          month: formatMonthShort(stat.month),
+          moodUp: stat.avgMoodUp ?? undefined,
+          moodDown: stat.avgMoodDown ?? undefined,
+        })),
+    [monthlyStats],
+  );
+  const hasMoodData = chartData.some(
+    (d) => d.moodUp !== undefined || d.moodDown !== undefined,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -187,8 +258,74 @@ export default function StatsPage() {
           <h1 className={styles.title}>기분 추세</h1>
           <p className={styles.subtitle}>최근 6개월 기록을 기반으로 한 통계</p>
 
-          <div className={styles.chartPlaceholder}>
-            그래프 영역 (chart.js 연동 예정)
+          <div className={styles.chartWrap}>
+            {loading && <div className={styles.chartEmpty}>불러오는 중...</div>}
+            {!loading && (error || !hasMoodData) && (
+              <div className={styles.chartEmpty}>
+                {error ? "통계를 불러오지 못했습니다." : "표시할 기분 기록이 없습니다."}
+              </div>
+            )}
+            {!loading && !error && hasMoodData && (
+              <>
+                <div className={styles.chartLegend}>
+                  <span className={styles.legendItem}>
+                    <span
+                      className={styles.legendSwatch}
+                      style={{ background: SERIES_COLOR.moodUp }}
+                    />
+                    기분 Up
+                  </span>
+                  <span className={styles.legendItem}>
+                    <span
+                      className={styles.legendSwatch}
+                      style={{ background: SERIES_COLOR.moodDown }}
+                    />
+                    기분 Down
+                  </span>
+                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={chartData} barGap={2} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                    <CartesianGrid
+                      vertical={false}
+                      stroke="var(--chart-grid)"
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={{ stroke: "var(--chart-grid)" }}
+                      tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+                    />
+                    <YAxis
+                      domain={[-4, 4]}
+                      ticks={[-4, -2, 0, 2, 4]}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+                      width={28}
+                    />
+                    <ReferenceLine y={0} stroke="var(--chart-axis)" />
+                    <Tooltip
+                      content={(props) => <MoodTooltip {...props} />}
+                      cursor={{ fill: "var(--chart-grid)", opacity: 0.3 }}
+                    />
+                    <Bar
+                      dataKey="moodUp"
+                      name="기분 Up"
+                      fill={SERIES_COLOR.moodUp}
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={24}
+                    />
+                    <Bar
+                      dataKey="moodDown"
+                      name="기분 Down"
+                      fill={SERIES_COLOR.moodDown}
+                      radius={[0, 0, 4, 4]}
+                      maxBarSize={24}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </>
+            )}
           </div>
         </section>
 

@@ -60,6 +60,12 @@ export default function Calendar() {
     setIsPanelOpen(true);
   };
 
+  const isFutureDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date.getTime() > today.getTime();
+  };
+
   const handleClose = () => setIsPanelOpen(false);
 
   const title = selectedDate?.toLocaleDateString("ko-KR") ?? "";
@@ -76,6 +82,9 @@ export default function Calendar() {
       <div className={styles.container}>
         <ReactCalendar
           onClickDay={handleDayClick}
+          tileDisabled={({ date, view }) =>
+            view === "month" && isFutureDate(date)
+          }
           locale="ko-KR"
           calendarType="gregory"
           prevLabel={<IconChevron style={{ transform: "rotate(180deg)" }} />}
