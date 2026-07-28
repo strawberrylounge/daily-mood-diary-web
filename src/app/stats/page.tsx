@@ -36,28 +36,32 @@ const MoodTooltip = ({ active, payload, label }: TooltipContentProps) => {
   const moodDown = payload.find((p) => p.dataKey === "moodDown")?.value;
 
   return (
-    <div className={styles.chartTooltip}>
-      <p className={styles.tooltipMonth}>{label}</p>
+    <div className={styles["chart-tooltip"]}>
+      <p className={styles["tooltip-month"]}>{label}</p>
       {typeof moodUp === "number" && (
-        <div className={styles.tooltipRow}>
+        <div className={styles["tooltip-row"]}>
           <span
-            className={styles.tooltipKey}
-            style={{ "--dot-color": SERIES_COLOR.moodUp } as React.CSSProperties}
+            className={styles["tooltip-key"]}
+            style={
+              { "--dot-color": SERIES_COLOR.moodUp } as React.CSSProperties
+            }
           >
             기분 Up
           </span>
-          <span className={styles.tooltipValue}>{moodUp.toFixed(1)}</span>
+          <span className={styles["tooltip-value"]}>{moodUp.toFixed(1)}</span>
         </div>
       )}
       {typeof moodDown === "number" && (
-        <div className={styles.tooltipRow}>
+        <div className={styles["tooltip-row"]}>
           <span
-            className={styles.tooltipKey}
-            style={{ "--dot-color": SERIES_COLOR.moodDown } as React.CSSProperties}
+            className={styles["tooltip-key"]}
+            style={
+              { "--dot-color": SERIES_COLOR.moodDown } as React.CSSProperties
+            }
           >
             기분 Down
           </span>
-          <span className={styles.tooltipValue}>{moodDown.toFixed(1)}</span>
+          <span className={styles["tooltip-value"]}>{moodDown.toFixed(1)}</span>
         </div>
       )}
     </div>
@@ -255,36 +259,44 @@ export default function StatsPage() {
       <div className="inner">
         {/* 차트 영역 */}
         <section>
-          <h1 className={styles.title}>기분 추세</h1>
+          <h2 className={styles["section-title"]}>기분 추세</h2>
           <p className={styles.subtitle}>최근 6개월 기록을 기반으로 한 통계</p>
 
-          <div className={styles.chartWrap}>
-            {loading && <div className={styles.chartEmpty}>불러오는 중...</div>}
+          <div className={styles["chart-wrap"]}>
+            {loading && (
+              <div className={styles["chart-wrap__empty"]}>불러오는 중...</div>
+            )}
             {!loading && (error || !hasMoodData) && (
-              <div className={styles.chartEmpty}>
-                {error ? "통계를 불러오지 못했습니다." : "표시할 기분 기록이 없습니다."}
+              <div className={styles["chart-wrap__empty"]}>
+                {error
+                  ? "통계를 불러오지 못했습니다."
+                  : "표시할 기분 기록이 없습니다."}
               </div>
             )}
             {!loading && !error && hasMoodData && (
               <>
-                <div className={styles.chartLegend}>
-                  <span className={styles.legendItem}>
+                <div className={styles["chart-legend"]}>
+                  <span className={styles["legend-item"]}>
                     <span
-                      className={styles.legendSwatch}
+                      className={styles["legend-swatch"]}
                       style={{ background: SERIES_COLOR.moodUp }}
                     />
                     기분 Up
                   </span>
-                  <span className={styles.legendItem}>
+                  <span className={styles["legend-item"]}>
                     <span
-                      className={styles.legendSwatch}
+                      className={styles["legend-swatch"]}
                       style={{ background: SERIES_COLOR.moodDown }}
                     />
                     기분 Down
                   </span>
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={chartData} barGap={2} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                  <BarChart
+                    data={chartData}
+                    barGap={2}
+                    margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+                  >
                     <CartesianGrid
                       vertical={false}
                       stroke="var(--chart-grid)"
@@ -331,7 +343,7 @@ export default function StatsPage() {
 
         {/* 월별 통계 */}
         <section>
-          <h2 className={styles["section-title"]}>월별 통계</h2>
+          <h2 className={`mb16 ${styles["section-title"]}`}>월별 통계</h2>
 
           {loading && <div className={styles.empty}>불러오는 중...</div>}
           {error && <p className={styles.error}>{error}</p>}

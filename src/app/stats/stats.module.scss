@@ -2,13 +2,99 @@
 
 .page-stats {
   padding: 40px 0 80px;
+  @include mobile {
+    padding-top: 0;
+  }
 
   .section-title {
-    margin: 40px 0 16px;
+    margin: 40px 0 6px;
     font-weight: font-weight("bold");
     font-size: rem(24);
     color: color("text");
   }
+  .subtitle {
+    margin-bottom: 24px;
+    font-size: rem(16);
+    color: color("text-secondary");
+  }
+
+  /* 기분 추세(차트) */
+  .chart-wrap {
+    margin-bottom: 24px;
+    padding: 20px 12px 8px;
+    border-radius: 16px;
+    background: color("surface");
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    // 발산형(diverging) 차트 색상: 기분 Up(+)/Down(-)이 0을 기준으로 양쪽으로 갈라지는 값이라
+    // 카테고리 색이 아닌 발산형 두 색(파랑/빨강)을 사용 (WCAG 3:1 이상, CVD 검증 완료)
+    --series-mood-up: #2a78d6;
+    --series-mood-down: #e34948;
+    --chart-grid: #{color("border")};
+    --chart-axis: #{color("text-secondary")};
+
+    .chart-legend {
+      @include flexbox(center, center, 20px);
+      margin-bottom: 4px;
+      font-size: rem(13);
+      color: color("text-secondary");
+
+      .legend-item {
+        @include flexbox(null, center, 6px);
+      }
+      .legend-swatch {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+      }
+    }
+    .chart-tooltip {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid color("border");
+      background: color("surface");
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      font-size: rem(13);
+
+      .tooltip-month {
+        margin-bottom: 6px;
+        font-weight: font-weight("bold");
+        color: color("text");
+      }
+      .tooltip-row {
+        @include flexbox(space-between, center, 10px);
+        & + .tooltip-row {
+          margin-top: 4px;
+        }
+      }
+      .tooltip-key {
+        @include flexbox(null, center, 6px);
+        color: color("text-secondary");
+        &::before {
+          content: "";
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 2px;
+          background: var(--dot-color);
+        }
+      }
+      .tooltip-value {
+        font-weight: font-weight("bold");
+        color: color("text");
+      }
+    }
+
+    /* 차트 없을 때 */
+    &__empty {
+      @include flexbox(center, center);
+      height: 220px;
+      font-size: rem(14);
+      color: color("text-secondary");
+    }
+  }
+  // 월별 통계
   .monthly-stats-wrap {
     margin-bottom: 16px;
     padding: 20px;
@@ -60,18 +146,18 @@
                 font-size: rem(14);
                 color: color("text");
                 text-align: right;
-                .badge {
-                  padding: 2px 8px;
-                  border-radius: 8px;
-                  background: color("background");
-                  font-size: rem(12);
-                  font-weight: font-weight("bold");
-                  &.up {
-                    color: color("error");
-                  }
-                  &.down {
-                    color: color("success");
-                  }
+              }
+              .badge {
+                padding: 2px 8px;
+                border-radius: 8px;
+                background: color("background");
+                font-size: rem(12);
+                font-weight: font-weight("bold");
+                &.up {
+                  color: color("error");
+                }
+                &.down {
+                  color: color("success");
                 }
               }
               .no-comparison {
@@ -101,97 +187,6 @@
         }
       }
     }
-  }
-}
-
-.title {
-  margin-bottom: 8px;
-  font-size: rem(32);
-  font-weight: font-weight("bold");
-  text-align: center;
-  color: color("text");
-}
-
-.subtitle {
-  margin-bottom: 24px;
-  font-size: rem(16);
-  color: color("text-secondary");
-  text-align: center;
-}
-
-.chartWrap {
-  margin-bottom: 24px;
-  padding: 20px 12px 8px;
-  border-radius: 16px;
-  background: color("surface");
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  // 발산형(diverging) 차트 색상: 기분 Up(+)/Down(-)이 0을 기준으로 양쪽으로 갈라지는 값이라
-  // 카테고리 색이 아닌 발산형 두 색(파랑/빨강)을 사용 (WCAG 3:1 이상, CVD 검증 완료)
-  --series-mood-up: #2a78d6;
-  --series-mood-down: #e34948;
-  --chart-grid: #{color("border")};
-  --chart-axis: #{color("text-secondary")};
-}
-
-.chartEmpty {
-  @include flexbox(center, center);
-  height: 220px;
-  font-size: rem(14);
-  color: color("text-secondary");
-}
-
-.chartLegend {
-  @include flexbox(center, center, 20px);
-  margin-bottom: 4px;
-  font-size: rem(13);
-  color: color("text-secondary");
-
-  .legendItem {
-    @include flexbox(null, center, 6px);
-  }
-  .legendSwatch {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-  }
-}
-
-.chartTooltip {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid color("border");
-  background: color("surface");
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  font-size: rem(13);
-
-  .tooltipMonth {
-    margin-bottom: 6px;
-    font-weight: font-weight("bold");
-    color: color("text");
-  }
-  .tooltipRow {
-    @include flexbox(space-between, center, 10px);
-    & + .tooltipRow {
-      margin-top: 4px;
-    }
-  }
-  .tooltipKey {
-    @include flexbox(null, center, 6px);
-    color: color("text-secondary");
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      background: var(--dot-color);
-    }
-  }
-  .tooltipValue {
-    font-weight: font-weight("bold");
-    color: color("text");
   }
 }
 
