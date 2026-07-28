@@ -81,7 +81,7 @@ export default function StatsPage() {
         setError(
           recordsError?.message ??
             assessmentsError?.message ??
-            "통계를 불러오지 못했습니다."
+            "통계를 불러오지 못했습니다.",
         );
         setLoading(false);
         return;
@@ -107,7 +107,7 @@ export default function StatsPage() {
           const count = monthRecords.length;
           const moodUp = monthRecords.filter((r) => r.mood_up_score != null);
           const moodDown = monthRecords.filter(
-            (r) => r.mood_down_score != null
+            (r) => r.mood_down_score != null,
           );
           const weighted = monthRecords.filter((r) => r.weight != null);
 
@@ -122,10 +122,8 @@ export default function StatsPage() {
                 moodUp.length
               : null,
             avgMoodDown: moodDown.length
-              ? moodDown.reduce(
-                  (sum, r) => sum + (r.mood_down_score ?? 0),
-                  0
-                ) / moodDown.length
+              ? moodDown.reduce((sum, r) => sum + (r.mood_down_score ?? 0), 0) /
+                moodDown.length
               : null,
             avgAnxiety: avg((r) => r.anxiety_score),
             avgAnger: avg((r) => r.anger_score),
@@ -167,152 +165,170 @@ export default function StatsPage() {
     const diff = hasPrev ? current - previous : 0;
 
     return (
-      <div className={styles.changeValueRow}>
-        <span className={styles.changeValue}>{current}일</span>
+      <div className={styles["change-value-wrap"]}>
+        <span className={styles["change-value"]}>{current}일</span>
         {hasPrev && diff !== 0 && (
           <span
-            className={`${styles.changeBadge} ${
-              diff > 0 ? styles.changeUp : styles.changeDown
-            }`}
+            className={`${styles.badge} ${diff > 0 ? styles.up : styles.down}`}
           >
             {diff > 0 ? "▲" : "▼"} {Math.abs(diff)}
           </span>
         )}
-        {!hasPrev && <span className={styles.noComparison}>-</span>}
+        {/* {!hasPrev && <span className={styles["no-comparison"]}>-</span>} */}
       </div>
     );
   };
 
   return (
-    <main id="content" className={styles.page}>
+    <main id="content" className={styles["page-stats"]}>
       <div className="inner">
-        <h1 className={styles.title}>기분 추세</h1>
-        <p className={styles.subtitle}>최근 6개월 기록을 기반으로 한 통계</p>
+        {/* 차트 영역 */}
+        <section>
+          <h1 className={styles.title}>기분 추세</h1>
+          <p className={styles.subtitle}>최근 6개월 기록을 기반으로 한 통계</p>
 
-        <div className={styles.chartPlaceholder}>
-          그래프 영역 (chart.js 연동 예정)
-        </div>
+          <div className={styles.chartPlaceholder}>
+            그래프 영역 (chart.js 연동 예정)
+          </div>
+        </section>
 
-        <h2 className={styles.sectionTitle}>월별 통계</h2>
+        {/* 월별 통계 */}
+        <section>
+          <h2 className={styles["section-title"]}>월별 통계</h2>
 
-        {loading && <p className={styles.empty}>불러오는 중...</p>}
-        {error && <p className={styles.errorText}>{error}</p>}
+          {loading && <div className={styles.empty}>불러오는 중...</div>}
+          {error && <p className={styles.error}>{error}</p>}
 
-        {!loading && !error && monthlyStats.length === 0 && (
-          <p className={styles.empty}>아직 기록이 없습니다.</p>
-        )}
+          {!loading && !error && monthlyStats.length === 0 && (
+            <p className={styles.empty}>아직 기록이 없습니다.</p>
+          )}
 
-        {!loading &&
-          !error &&
-          monthlyStats.map((stat, index) => {
-            const prevStat = monthlyStats[index + 1];
-            return (
-              <div key={stat.month} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <span className={styles.monthText}>
-                    {formatMonth(stat.month)}
-                  </span>
-                  <span className={styles.countText}>
-                    {stat.recordCount}일 기록됨
-                  </span>
+          {!loading &&
+            !error &&
+            monthlyStats.map((stat, index) => {
+              const prevStat = monthlyStats[index + 1];
+              return (
+                <div key={stat.month} className={styles["monthly-stats-wrap"]}>
+                  <hgroup className={styles.header}>
+                    <h3 className={styles["month-text"]}>
+                      {formatMonth(stat.month)}
+                    </h3>
+                    <span className={styles["count-text"]}>
+                      {stat.recordCount}일 기록됨
+                    </span>
+                  </hgroup>
+
+                  <div className={styles.body}>
+                    <div className={styles["change-area"]}>
+                      <h4 className={styles["change-title"]}>
+                        지난 달 대비 증감
+                      </h4>
+                      <ul className={styles["change-contents"]}>
+                        {CHANGE_ITEMS.map(({ key, label }) => (
+                          <li key={key} className={styles["change-item"]}>
+                            <span className={styles["change-item-label"]}>
+                              {label}
+                            </span>
+                            {renderChange(
+                              stat[key] as number,
+                              prevStat ? (prevStat[key] as number) : undefined,
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <ul className={styles["stats-area"]}>
+                      {stat.avgMoodUp !== null && (
+                        <li className={styles["stat-item"]}>
+                          <span className={styles["stat-label"]}>
+                            기분 Up 평균
+                          </span>
+                          <span className={styles["stat-value"]}>
+                            {stat.avgMoodUp.toFixed(1)}
+                          </span>
+                        </li>
+                      )}
+                      {stat.avgMoodDown !== null && (
+                        <li className={styles["stat-item"]}>
+                          <span className={styles["stat-label"]}>
+                            기분 Down 평균
+                          </span>
+                          <span className={styles["stat-value"]}>
+                            {stat.avgMoodDown.toFixed(1)}
+                          </span>
+                        </li>
+                      )}
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>불안</span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgAnxiety.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>짜증/분노</span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgAnger.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>관심/흥미</span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgInterest.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>활동량</span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgActivity.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>
+                          생각의 속도/양
+                        </span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgThoughtSpeed.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>
+                          생각의 내용
+                        </span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgThoughtContent.toFixed(1)}
+                        </span>
+                      </li>
+                      <li className={styles["stat-item"]}>
+                        <span className={styles["stat-label"]}>수면 시간</span>
+                        <span className={styles["stat-value"]}>
+                          {stat.avgSleepHours.toFixed(1)}h
+                        </span>
+                      </li>
+                      {stat.avgWeight !== null && (
+                        <li className={styles["stat-item"]}>
+                          <span className={styles["stat-label"]}>체중</span>
+                          <span className={styles["stat-value"]}>
+                            {stat.avgWeight.toFixed(1)}kg
+                          </span>
+                        </li>
+                      )}
+                      {stat.totalScore > 0 && (
+                        <li className={styles["stat-item"]}>
+                          <span className={styles["stat-label"]}>
+                            월말평가 총점
+                          </span>
+                          <span className={styles["stat-value"]}>
+                            {stat.totalScore}점
+                          </span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
                 </div>
-
-                <div className={styles.changeSection}>
-                  <p className={styles.changeSectionTitle}>
-                    지난 달 대비 증감
-                  </p>
-                  <div className={styles.changeGrid}>
-                    {CHANGE_ITEMS.map(({ key, label }) => (
-                      <div key={key} className={styles.changeItem}>
-                        <span className={styles.changeLabel}>{label}</span>
-                        {renderChange(
-                          stat[key] as number,
-                          prevStat ? (prevStat[key] as number) : undefined
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={styles.statsGrid}>
-                  {stat.avgMoodUp !== null && (
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>기분 Up 평균</span>
-                      <span className={styles.statValue}>
-                        {stat.avgMoodUp.toFixed(1)}
-                      </span>
-                    </div>
-                  )}
-                  {stat.avgMoodDown !== null && (
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>기분 Down 평균</span>
-                      <span className={styles.statValue}>
-                        {stat.avgMoodDown.toFixed(1)}
-                      </span>
-                    </div>
-                  )}
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>불안</span>
-                    <span className={styles.statValue}>
-                      {stat.avgAnxiety.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>짜증/분노</span>
-                    <span className={styles.statValue}>
-                      {stat.avgAnger.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>관심/흥미</span>
-                    <span className={styles.statValue}>
-                      {stat.avgInterest.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>활동량</span>
-                    <span className={styles.statValue}>
-                      {stat.avgActivity.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>생각의 속도/양</span>
-                    <span className={styles.statValue}>
-                      {stat.avgThoughtSpeed.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>생각의 내용</span>
-                    <span className={styles.statValue}>
-                      {stat.avgThoughtContent.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className={styles.statItem}>
-                    <span className={styles.statLabel}>수면 시간</span>
-                    <span className={styles.statValue}>
-                      {stat.avgSleepHours.toFixed(1)}h
-                    </span>
-                  </div>
-                  {stat.avgWeight !== null && (
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>체중</span>
-                      <span className={styles.statValue}>
-                        {stat.avgWeight.toFixed(1)}kg
-                      </span>
-                    </div>
-                  )}
-                  {stat.totalScore > 0 && (
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>월말평가 총점</span>
-                      <span className={styles.statValue}>
-                        {stat.totalScore}점
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+        </section>
       </div>
     </main>
   );
