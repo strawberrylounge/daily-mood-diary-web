@@ -18,6 +18,7 @@ import styles from "./Calendar.module.scss";
 
 export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [panelKey, setPanelKey] = useState(0);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [recordedDates, setRecordedDates] = useState<Set<string>>(new Set());
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -57,6 +58,7 @@ export default function Calendar() {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    setPanelKey((k) => k + 1);
     setIsPanelOpen(true);
   };
 
@@ -71,6 +73,7 @@ export default function Calendar() {
   const title = selectedDate?.toLocaleDateString("ko-KR") ?? "";
   const content = selectedDate && (
     <RecordForm
+      key={panelKey}
       date={selectedDate}
       onClose={handleClose}
       onRecordChange={() => setRefreshTrigger((t) => t + 1)}
