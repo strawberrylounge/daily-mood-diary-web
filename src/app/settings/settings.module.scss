@@ -55,9 +55,25 @@
   color: color("white");
   font-size: rem(16);
   font-weight: font-weight("bold");
+  text-align: center;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+.loginButton {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  background: color("primary");
+  color: color("white");
+  font-size: rem(16);
+  font-weight: font-weight("bold");
+  text-align: center;
 }

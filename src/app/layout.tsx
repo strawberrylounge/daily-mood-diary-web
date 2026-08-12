@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 import Header from "@/components/common/Header";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 import "@/styles/main.scss";
 
@@ -36,8 +37,10 @@ export default function RootLayout({
             </li> */}
           </ul>
         </nav>
-        <Header />
-        {children}
+        <AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

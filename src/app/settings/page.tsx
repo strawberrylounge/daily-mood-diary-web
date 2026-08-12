@@ -1,9 +1,21 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { useAuth } from "@/lib/auth/AuthProvider";
+
 import styles from "./settings.module.scss";
 
-// TODO: 인증 연동 후 실제 계정 정보/로그아웃 로직 연결 필요 (현재는 인증 미포함)
 export default function SettingsPage() {
+  const router = useRouter();
+  const { session, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    router.replace("/");
+  };
+
   return (
     <main id="content" className={styles.page}>
       <div className="inner">
@@ -13,13 +25,25 @@ export default function SettingsPage() {
           <h2 className={styles.label}>계정 정보</h2>
           <div className={styles.infoBox}>
             <p className={styles.infoLabel}>이메일</p>
-            <p className={styles.infoValue}>로그인 연동 예정</p>
+            <p className={styles.infoValue}>
+              {session ? session.user.email : "로그인하지 않음 (브라우저 임시 데이터 사용 중)"}
+            </p>
           </div>
         </section>
 
-        <button type="button" className={styles.logoutButton} disabled>
-          로그아웃 (로그인 연동 후 사용 가능)
-        </button>
+        {session ? (
+          <button
+            type="button"
+            className={styles.logoutButton}
+            onClick={handleLogout}
+          >
+            로그아웃
+          </button>
+        ) : (
+          <Link href="/login" className={styles.loginButton}>
+            로그인
+          </Link>
+        )}
       </div>
     </main>
   );

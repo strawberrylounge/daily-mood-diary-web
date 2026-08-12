@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { supabase } from "@/lib/supabase";
+import { useDataStore } from "@/lib/dataStore";
 import {
   ASSESSMENT_QUESTIONS,
   type AssessmentOption,
@@ -13,6 +13,7 @@ import styles from "./assessment.module.scss";
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const dataStore = useDataStore();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, AssessmentOption>
@@ -44,27 +45,15 @@ export default function AssessmentPage() {
     currentMonth.setDate(1);
     const assessmentMonth = currentMonth.toISOString().split("T")[0];
 
-    // TODO: 인증 연동 후 user_id로 필터링/저장 필요 (현재는 인증 미포함)
-    const { data: existing } = await supabase
-      .from("monthly_assessments")
-      .select("id")
-      .eq("assessment_month", assessmentMonth)
-      .maybeSingle();
+    const { data: existing } =
+      await dataStore.getAssessmentForMonth(assessmentMonth);
 
-    const { error: saveError } = existing
-      ? await supabase
-          .from("monthly_assessments")
-          .update({
-            total_score: score,
-            answers,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", existing.id)
-      : await supabase.from("monthly_assessments").insert({
-          assessment_month: assessmentMonth,
-          total_score: score,
-          answers,
-        });
+    const { error: saveError } = await dataStore.saveAssessment(
+      assessmentMonth,
+      score,
+      answers,
+      existing?.id,
+    );
 
     setIsSubmitting(false);
 

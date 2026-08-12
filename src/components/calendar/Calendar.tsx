@@ -8,7 +8,7 @@ import SidePanel from "@/components/common/SidePanel";
 import RecordForm from "@/components/record/RecordForm";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { supabase } from "@/lib/supabase";
+import { useDataStore } from "@/lib/dataStore";
 import { formatDateToYMD } from "@/utils/date";
 
 import IconChevron from "@/assets/icons/chevron.svg";
@@ -17,6 +17,7 @@ import IconChevronDouble from "@/assets/icons/chevron-double.svg";
 import styles from "./Calendar.module.scss";
 
 export default function Calendar() {
+  const dataStore = useDataStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [panelKey, setPanelKey] = useState(0);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -31,11 +32,9 @@ export default function Calendar() {
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-      // TODO: 인증 연동 후 user_id로 필터링 필요 (현재는 인증 미포함)
-      const { data, error } = await supabase
-        .from("daily_records")
-        .select("record_date")
-        .gte("record_date", formatDateToYMD(threeMonthsAgo));
+      const { data, error } = await dataStore.getRecordedDates(
+        formatDateToYMD(threeMonthsAgo),
+      );
 
       if (cancelled) return;
 
@@ -44,9 +43,7 @@ export default function Calendar() {
         return;
       }
 
-      setRecordedDates(
-        new Set((data ?? []).map((r) => r.record_date as string)),
-      );
+      setRecordedDates(new Set(data ?? []));
     };
 
     loadRecordedDates();
@@ -54,7 +51,7 @@ export default function Calendar() {
     return () => {
       cancelled = true;
     };
-  }, [refreshTrigger]);
+  }, [refreshTrigger, dataStore]);
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 import styles from "./Header.module.scss";
 
@@ -13,6 +15,13 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { session, loading, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    router.replace("/");
+  };
 
   return (
     <header id="header" className={styles.header}>
@@ -34,6 +43,28 @@ export default function Header() {
                 </Link>
               </li>
             ))}
+            {!loading && (
+              <li>
+                {session ? (
+                  <button
+                    type="button"
+                    className={styles["nav-link"]}
+                    onClick={handleLogout}
+                  >
+                    로그아웃
+                  </button>
+                ) : (
+                  <Link
+                    href="/login"
+                    className={`${styles["nav-link"]} ${
+                      pathname === "/login" ? styles["active"] : ""
+                    }`}
+                  >
+                    로그인
+                  </Link>
+                )}
+              </li>
+            )}
           </ul>
         </nav>
       </div>

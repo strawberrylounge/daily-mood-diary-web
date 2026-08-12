@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { supabase } from "@/lib/supabase";
+import { useDataStore } from "@/lib/dataStore";
 import type { DailyRecord } from "@/types/record";
 import { SCORE_RANGE, getScoreColor } from "@/utils/score";
 import { formatDateToYMD } from "@/utils/date";
@@ -140,6 +140,7 @@ export default function RecordForm({
   onRecordChange,
 }: RecordFormProps) {
   const dateStr = formatDateToYMD(date);
+  const dataStore = useDataStore();
 
   const [mode, setMode] = useState<Mode>("loading");
   const [record, setRecord] = useState<DailyRecord | null>(null);
@@ -157,17 +158,12 @@ export default function RecordForm({
       setError(null);
       setCurrentStep(1);
 
-      // TODO: 인증 연동 후 user_id로 필터링 필요 (현재는 인증 미포함)
-      const { data, error: fetchError } = await supabase
-        .from("daily_records")
-        .select("*")
-        .eq("record_date", dateStr)
-        .maybeSingle();
+      const { data, error: fetchError } = await dataStore.getRecord(dateStr);
 
       if (cancelled) return;
 
       if (fetchError) {
-        setError(fetchError.message);
+        setError(fetchError);
         setForm(EMPTY_FORM);
         setMode("create");
         return;
@@ -189,7 +185,7 @@ export default function RecordForm({
     return () => {
       cancelled = true;
     };
-  }, [dateStr]);
+  }, [dateStr, dataStore]);
 
   const setScore = (key: ScoreKey, value: number) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -277,15 +273,14 @@ export default function RecordForm({
     setSaving(true);
     setError(null);
 
-    // TODO: 인증 연동 후 user_id 추가 필요 (현재는 인증 미포함)
-    const { error: insertError } = await supabase
-      .from("daily_records")
-      .insert(buildPayload());
+    const { error: insertError } = await dataStore.createRecord(
+      buildPayload(),
+    );
 
     setSaving(false);
 
     if (insertError) {
-      setError(insertError.message);
+      setError(insertError);
       return;
     }
 
@@ -308,15 +303,15 @@ export default function RecordForm({
     setSaving(true);
     setError(null);
 
-    const { error: updateError } = await supabase
-      .from("daily_records")
-      .update({ ...buildPayload(), updated_at: new Date().toISOString() })
-      .eq("id", record.id);
+    const { error: updateError } = await dataStore.updateRecord(
+      record.id,
+      buildPayload(),
+    );
 
     setSaving(false);
 
     if (updateError) {
-      setError(updateError.message);
+      setError(updateError);
       return;
     }
 
@@ -333,15 +328,12 @@ export default function RecordForm({
     setSaving(true);
     setError(null);
 
-    const { error: deleteError } = await supabase
-      .from("daily_records")
-      .delete()
-      .eq("id", record.id);
+    const { error: deleteError } = await dataStore.deleteRecord(record.id);
 
     setSaving(false);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(deleteError);
       return;
     }
 

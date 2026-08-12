@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
 
-import { supabase } from "@/lib/supabase";
+import { useDataStore } from "@/lib/dataStore";
 import { formatDateToYMD } from "@/utils/date";
 import type { DailyRecord } from "@/types/record";
 
@@ -105,6 +105,7 @@ const formatMonth = (month: string) => {
 };
 
 export default function StatsPage() {
+  const dataStore = useDataStore();
   const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,29 +135,19 @@ export default function StatsPage() {
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-      // TODO: 인증 연동 후 user_id로 필터링 필요 (현재는 인증 미포함)
       const [
         { data: records, error: recordsError },
         { data: assessments, error: assessmentsError },
       ] = await Promise.all([
-        supabase
-          .from("daily_records")
-          .select("*")
-          .gte("record_date", formatDateToYMD(sixMonthsAgo))
-          .order("record_date", { ascending: false }),
-        supabase
-          .from("monthly_assessments")
-          .select("assessment_month, total_score")
-          .order("assessment_month", { ascending: false }),
+        dataStore.getRecordsSince(formatDateToYMD(sixMonthsAgo)),
+        dataStore.getAssessmentSummaries(),
       ]);
 
       if (cancelled) return;
 
       if (recordsError || assessmentsError) {
         setError(
-          recordsError?.message ??
-            assessmentsError?.message ??
-            "통계를 불러오지 못했습니다.",
+          recordsError ?? assessmentsError ?? "통계를 불러오지 못했습니다.",
         );
         setLoading(false);
         return;
@@ -233,7 +224,7 @@ export default function StatsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [dataStore]);
 
   const renderChange = (current: number, previous: number | undefined) => {
     const hasPrev = previous !== undefined;
