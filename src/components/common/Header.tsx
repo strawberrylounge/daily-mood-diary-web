@@ -43,26 +43,15 @@ export default function Header() {
                 </Link>
               </li>
             ))}
-            {!loading && (
+            {!loading && session && (
               <li>
-                {session ? (
-                  <button
-                    type="button"
-                    className={styles["nav-link"]}
-                    onClick={handleLogout}
-                  >
-                    로그아웃
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    className={`${styles["nav-link"]} ${
-                      pathname === "/login" ? styles["active"] : ""
-                    }`}
-                  >
-                    로그인
-                  </Link>
-                )}
+                <button
+                  type="button"
+                  className={styles["nav-link"]}
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </button>
               </li>
             )}
           </ul>
