@@ -75,6 +75,28 @@ export function getHomeAssessmentMonth(today = new Date()): string | null {
   return null;
 }
 
+/**
+ * 오늘 포함 monthsBack개월 구간의 시작일.
+ * 달 단위로 끊어서 1개월 = 이번 달 1일, 3개월 = 2개월 전 1일이 된다.
+ */
+export function getRangeStartDate(monthsBack: number, today = new Date()): Date {
+  return new Date(today.getFullYear(), today.getMonth() - (monthsBack - 1), 1);
+}
+
+/** start ~ end(포함) 사이의 모든 날짜를 YYYY-MM-DD로 */
+export function eachDateInRange(start: Date, end: Date): string[] {
+  const dates: string[] = [];
+  const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+  const last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+
+  while (cursor.getTime() <= last.getTime()) {
+    dates.push(formatDateToYMD(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return dates;
+}
+
 /** YYYY-MM -> "2025년 8월" */
 export function formatMonthLabel(monthKey: string): string {
   const [year, month] = monthKey.split("-");

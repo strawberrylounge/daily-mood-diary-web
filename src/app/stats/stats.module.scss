@@ -18,81 +18,44 @@
     color: color("text-secondary");
   }
 
-  /* 기분 추세(차트) */
-  .chart-wrap {
-    margin-bottom: 24px;
-    padding: 20px 12px 8px;
+  /* 기간 필터 탭 */
+  .range-tabs {
+    @include flexbox(null, center, 6px);
+    padding: 4px;
+    border-radius: 12px;
+    background: rgba(color("primary"), 0.06);
+    @include mobile {
+      margin-top: 20px;
+    }
+
+    .range-tab {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-size: rem(14);
+      color: color("text-secondary");
+
+      &:hover {
+        color: color("text");
+      }
+      &.selected {
+        background: color("surface");
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        font-weight: font-weight("bold");
+        color: color("primary");
+      }
+    }
+  }
+
+  /* 차트 없을 때 */
+  .chart-empty {
+    @include flexbox(center, center);
+    height: 240px;
     border-radius: 16px;
     background: color("surface");
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    // 발산형(diverging) 차트 색상: 기분 Up(+)/Down(-)이 0을 기준으로 양쪽으로 갈라지는 값이라
-    // 카테고리 색이 아닌 발산형 두 색(파랑/빨강)을 사용 (WCAG 3:1 이상, CVD 검증 완료)
-    --series-mood-up: #2a78d6;
-    --series-mood-down: #e34948;
-    --chart-grid: #{color("border")};
-    --chart-axis: #{color("text-secondary")};
-
-    .chart-legend {
-      @include flexbox(center, center, 20px);
-      margin-bottom: 4px;
-      font-size: rem(13);
-      color: color("text-secondary");
-
-      .legend-item {
-        @include flexbox(null, center, 6px);
-      }
-      .legend-swatch {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 2px;
-      }
-    }
-    .chart-tooltip {
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid color("border");
-      background: color("surface");
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      font-size: rem(13);
-
-      .tooltip-month {
-        margin-bottom: 6px;
-        font-weight: font-weight("bold");
-        color: color("text");
-      }
-      .tooltip-row {
-        @include flexbox(space-between, center, 10px);
-        & + .tooltip-row {
-          margin-top: 4px;
-        }
-      }
-      .tooltip-key {
-        @include flexbox(null, center, 6px);
-        color: color("text-secondary");
-        &::before {
-          content: "";
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 2px;
-          background: var(--dot-color);
-        }
-      }
-      .tooltip-value {
-        font-weight: font-weight("bold");
-        color: color("text");
-      }
-    }
-
-    /* 차트 없을 때 */
-    &__empty {
-      @include flexbox(center, center);
-      height: 220px;
-      font-size: rem(14);
-      color: color("text-secondary");
-    }
+    font-size: rem(14);
+    color: color("text-secondary");
   }
   // 월별 통계
   .monthly-stats-wrap {

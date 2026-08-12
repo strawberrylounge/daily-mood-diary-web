@@ -2,72 +2,31 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import type { TooltipContentProps } from "recharts";
+
+import MoodTrendChart from "@/components/stats/MoodTrendChart";
 
 import { useDataStore } from "@/lib/dataStore";
 import {
   formatDateToYMD,
+  formatMonthKey,
   formatMonthLabel,
-  formatMonthShortLabel,
+  getRangeStartDate,
   isAssessableMonth,
 } from "@/utils/date";
+import { buildMoodTrend } from "@/utils/moodTrend";
 import type { DailyRecord } from "@/types/record";
 
 import styles from "./stats.module.scss";
 
-const SERIES_COLOR = {
-  moodUp: "#2a78d6",
-  moodDown: "#e34948",
-} as const;
+const RANGE_OPTIONS = [
+  { months: 1, label: "1개월" },
+  { months: 3, label: "3개월" },
+  { months: 6, label: "6개월" },
+  { months: 12, label: "1년" },
+] as const;
 
-const MoodTooltip = ({ active, payload, label }: TooltipContentProps) => {
-  if (!active || !payload?.length) return null;
-
-  const moodUp = payload.find((p) => p.dataKey === "moodUp")?.value;
-  const moodDown = payload.find((p) => p.dataKey === "moodDown")?.value;
-
-  return (
-    <div className={styles["chart-tooltip"]}>
-      <p className={styles["tooltip-month"]}>{label}</p>
-      {typeof moodUp === "number" && (
-        <div className={styles["tooltip-row"]}>
-          <span
-            className={styles["tooltip-key"]}
-            style={
-              { "--dot-color": SERIES_COLOR.moodUp } as React.CSSProperties
-            }
-          >
-            기분 Up
-          </span>
-          <span className={styles["tooltip-value"]}>{moodUp.toFixed(1)}</span>
-        </div>
-      )}
-      {typeof moodDown === "number" && (
-        <div className={styles["tooltip-row"]}>
-          <span
-            className={styles["tooltip-key"]}
-            style={
-              { "--dot-color": SERIES_COLOR.moodDown } as React.CSSProperties
-            }
-          >
-            기분 Down
-          </span>
-          <span className={styles["tooltip-value"]}>{moodDown.toFixed(1)}</span>
-        </div>
-      )}
-    </div>
-  );
-};
+/** 항상 1년치를 받아두고 기간 전환은 클라이언트에서 잘라 쓴다 (탭 전환 시 재조회 없음) */
+const MAX_RANGE_MONTHS = 12;
 
 interface MonthlyStats {
   month: string;
@@ -100,26 +59,73 @@ const CHANGE_ITEMS: { key: keyof MonthlyStats; label: string }[] = [
   { key: "alcoholDays", label: "음주" },
 ];
 
+function buildMonthlyStats(
+  records: DailyRecord[],
+  assessmentScores: Map<string, number>,
+): MonthlyStats[] {
+  const grouped: Record<string, DailyRecord[]> = {};
+  records.forEach((record) => {
+    const month = record.record_date.substring(0, 7);
+    if (!grouped[month]) grouped[month] = [];
+    grouped[month].push(record);
+  });
+
+  return Object.keys(grouped)
+    .sort()
+    .reverse()
+    .map((month) => {
+      const monthRecords = grouped[month];
+      const count = monthRecords.length;
+      const moodUp = monthRecords.filter((r) => r.mood_up_score != null);
+      const moodDown = monthRecords.filter((r) => r.mood_down_score != null);
+      const weighted = monthRecords.filter((r) => r.weight != null);
+
+      const avg = (fn: (r: DailyRecord) => number) =>
+        monthRecords.reduce((sum, r) => sum + fn(r), 0) / count;
+
+      return {
+        month,
+        recordCount: count,
+        avgMoodUp: moodUp.length
+          ? moodUp.reduce((sum, r) => sum + (r.mood_up_score ?? 0), 0) /
+            moodUp.length
+          : null,
+        avgMoodDown: moodDown.length
+          ? moodDown.reduce((sum, r) => sum + (r.mood_down_score ?? 0), 0) /
+            moodDown.length
+          : null,
+        avgAnxiety: avg((r) => r.anxiety_score),
+        avgAnger: avg((r) => r.anger_score),
+        avgInterest: avg((r) => r.interest_score),
+        avgActivity: avg((r) => r.activity_score),
+        avgThoughtSpeed: avg((r) => r.thought_speed_score),
+        avgThoughtContent: avg((r) => r.thought_content_score),
+        avgSleepHours: avg((r) => r.sleep_hours),
+        avgWeight: weighted.length
+          ? weighted.reduce((sum, r) => sum + (r.weight ?? 0), 0) /
+            weighted.length
+          : null,
+        bingeEatingCount: monthRecords.filter((r) => r.has_binge_eating).length,
+        physicalPainCount: monthRecords.filter((r) => r.has_physical_pain)
+          .length,
+        panicAttackCount: monthRecords.filter((r) => r.has_panic_attack).length,
+        exerciseCount: monthRecords.filter((r) => r.has_exercise).length,
+        cryingCount: monthRecords.filter((r) => r.has_crying).length,
+        alcoholDays: monthRecords.filter((r) => r.has_alcohol > 0).length,
+        totalScore: assessmentScores.get(month) ?? null,
+      };
+    });
+}
+
 export default function StatsPage() {
   const dataStore = useDataStore();
-  const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
+  const [records, setRecords] = useState<DailyRecord[]>([]);
+  const [assessmentScores, setAssessmentScores] = useState(
+    () => new Map<string, number>(),
+  );
+  const [rangeMonths, setRangeMonths] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const chartData = useMemo(
-    () =>
-      [...monthlyStats]
-        .sort((a, b) => a.month.localeCompare(b.month))
-        .map((stat) => ({
-          month: formatMonthShortLabel(stat.month),
-          moodUp: stat.avgMoodUp ?? undefined,
-          moodDown: stat.avgMoodDown ?? undefined,
-        })),
-    [monthlyStats],
-  );
-  const hasMoodData = chartData.some(
-    (d) => d.moodUp !== undefined || d.moodDown !== undefined,
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -128,14 +134,13 @@ export default function StatsPage() {
       setLoading(true);
       setError(null);
 
-      const sixMonthsAgo = new Date();
-      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
       const [
-        { data: records, error: recordsError },
+        { data: loadedRecords, error: recordsError },
         { data: assessments, error: assessmentsError },
       ] = await Promise.all([
-        dataStore.getRecordsSince(formatDateToYMD(sixMonthsAgo)),
+        dataStore.getRecordsSince(
+          formatDateToYMD(getRangeStartDate(MAX_RANGE_MONTHS)),
+        ),
         dataStore.getAssessmentSummaries(),
       ]);
 
@@ -149,69 +154,15 @@ export default function StatsPage() {
         return;
       }
 
-      const assessmentMap = new Map<string, number>();
-      (assessments ?? []).forEach((a) => {
-        assessmentMap.set(a.assessment_month.substring(0, 7), a.total_score);
-      });
-
-      const grouped: Record<string, DailyRecord[]> = {};
-      (records ?? []).forEach((record: DailyRecord) => {
-        const month = record.record_date.substring(0, 7);
-        if (!grouped[month]) grouped[month] = [];
-        grouped[month].push(record);
-      });
-
-      const stats: MonthlyStats[] = Object.keys(grouped)
-        .sort()
-        .reverse()
-        .map((month) => {
-          const monthRecords = grouped[month];
-          const count = monthRecords.length;
-          const moodUp = monthRecords.filter((r) => r.mood_up_score != null);
-          const moodDown = monthRecords.filter(
-            (r) => r.mood_down_score != null,
-          );
-          const weighted = monthRecords.filter((r) => r.weight != null);
-
-          const avg = (fn: (r: DailyRecord) => number) =>
-            monthRecords.reduce((sum, r) => sum + fn(r), 0) / count;
-
-          return {
-            month,
-            recordCount: count,
-            avgMoodUp: moodUp.length
-              ? moodUp.reduce((sum, r) => sum + (r.mood_up_score ?? 0), 0) /
-                moodUp.length
-              : null,
-            avgMoodDown: moodDown.length
-              ? moodDown.reduce((sum, r) => sum + (r.mood_down_score ?? 0), 0) /
-                moodDown.length
-              : null,
-            avgAnxiety: avg((r) => r.anxiety_score),
-            avgAnger: avg((r) => r.anger_score),
-            avgInterest: avg((r) => r.interest_score),
-            avgActivity: avg((r) => r.activity_score),
-            avgThoughtSpeed: avg((r) => r.thought_speed_score),
-            avgThoughtContent: avg((r) => r.thought_content_score),
-            avgSleepHours: avg((r) => r.sleep_hours),
-            avgWeight: weighted.length
-              ? weighted.reduce((sum, r) => sum + (r.weight ?? 0), 0) /
-                weighted.length
-              : null,
-            bingeEatingCount: monthRecords.filter((r) => r.has_binge_eating)
-              .length,
-            physicalPainCount: monthRecords.filter((r) => r.has_physical_pain)
-              .length,
-            panicAttackCount: monthRecords.filter((r) => r.has_panic_attack)
-              .length,
-            exerciseCount: monthRecords.filter((r) => r.has_exercise).length,
-            cryingCount: monthRecords.filter((r) => r.has_crying).length,
-            alcoholDays: monthRecords.filter((r) => r.has_alcohol > 0).length,
-            totalScore: assessmentMap.get(month) ?? null,
-          };
-        });
-
-      setMonthlyStats(stats);
+      setRecords(loadedRecords ?? []);
+      setAssessmentScores(
+        new Map(
+          (assessments ?? []).map((a) => [
+            a.assessment_month.substring(0, 7),
+            a.total_score,
+          ]),
+        ),
+      );
       setLoading(false);
     };
 
@@ -221,6 +172,28 @@ export default function StatsPage() {
       cancelled = true;
     };
   }, [dataStore]);
+
+  // 증감 비교를 위해 통계는 받아온 1년 전체로 계산하고, 노출만 선택한 기간으로 자른다
+  const monthlyStats = useMemo(
+    () => buildMonthlyStats(records, assessmentScores),
+    [records, assessmentScores],
+  );
+
+  const rangeStart = useMemo(
+    () => getRangeStartDate(rangeMonths),
+    [rangeMonths],
+  );
+
+  const trendPoints = useMemo(
+    () => buildMoodTrend(records, rangeStart, new Date()),
+    [records, rangeStart],
+  );
+  const hasMoodData = trendPoints.some((p) => p.mood !== null);
+
+  const rangeStartMonth = formatMonthKey(rangeStart);
+  const visibleStats = monthlyStats.filter(
+    (stat) => stat.month >= rangeStartMonth,
+  );
 
   const renderChange = (current: number, previous: number | undefined) => {
     const hasPrev = previous !== undefined;
@@ -244,88 +217,42 @@ export default function StatsPage() {
   return (
     <main id="content" className={styles["page-stats"]}>
       <div className="inner">
+        {/* 기간 필터: 아래 차트와 월별 통계 모두에 적용된다 */}
+        <div className={styles["range-tabs"]} role="tablist" aria-label="기간">
+          {RANGE_OPTIONS.map((option) => (
+            <button
+              key={option.months}
+              type="button"
+              role="tab"
+              aria-selected={rangeMonths === option.months}
+              className={`${styles["range-tab"]} ${
+                rangeMonths === option.months ? styles.selected : ""
+              }`}
+              onClick={() => setRangeMonths(option.months)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
         {/* 차트 영역 */}
         <section>
           <h2 className={styles["section-title"]}>기분 추세</h2>
-          <p className={styles.subtitle}>최근 6개월 기록을 기반으로 한 통계</p>
+          <p className={styles.subtitle}>날짜별 기분 점수의 변화</p>
 
-          <div className={styles["chart-wrap"]}>
-            {loading && (
-              <div className={styles["chart-wrap__empty"]}>불러오는 중...</div>
-            )}
-            {!loading && (error || !hasMoodData) && (
-              <div className={styles["chart-wrap__empty"]}>
-                {error
-                  ? "통계를 불러오지 못했습니다."
-                  : "표시할 기분 기록이 없습니다."}
-              </div>
-            )}
-            {!loading && !error && hasMoodData && (
-              <>
-                <div className={styles["chart-legend"]}>
-                  <span className={styles["legend-item"]}>
-                    <span
-                      className={styles["legend-swatch"]}
-                      style={{ background: SERIES_COLOR.moodUp }}
-                    />
-                    기분 Up
-                  </span>
-                  <span className={styles["legend-item"]}>
-                    <span
-                      className={styles["legend-swatch"]}
-                      style={{ background: SERIES_COLOR.moodDown }}
-                    />
-                    기분 Down
-                  </span>
-                </div>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart
-                    data={chartData}
-                    barGap={2}
-                    margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      vertical={false}
-                      stroke="var(--chart-grid)"
-                    />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={{ stroke: "var(--chart-grid)" }}
-                      tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
-                    />
-                    <YAxis
-                      domain={[-4, 4]}
-                      ticks={[-4, -2, 0, 2, 4]}
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
-                      width={28}
-                    />
-                    <ReferenceLine y={0} stroke="var(--chart-axis)" />
-                    <Tooltip
-                      content={(props) => <MoodTooltip {...props} />}
-                      cursor={{ fill: "var(--chart-grid)", opacity: 0.3 }}
-                    />
-                    <Bar
-                      dataKey="moodUp"
-                      name="기분 Up"
-                      fill={SERIES_COLOR.moodUp}
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={24}
-                    />
-                    <Bar
-                      dataKey="moodDown"
-                      name="기분 Down"
-                      fill={SERIES_COLOR.moodDown}
-                      radius={[0, 0, 4, 4]}
-                      maxBarSize={24}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </>
-            )}
-          </div>
+          {loading && (
+            <div className={styles["chart-empty"]}>불러오는 중...</div>
+          )}
+          {!loading && (error || !hasMoodData) && (
+            <div className={styles["chart-empty"]}>
+              {error
+                ? "통계를 불러오지 못했습니다."
+                : "표시할 기분 기록이 없습니다."}
+            </div>
+          )}
+          {!loading && !error && hasMoodData && (
+            <MoodTrendChart points={trendPoints} months={rangeMonths} />
+          )}
         </section>
 
         {/* 월별 통계 */}
@@ -335,13 +262,14 @@ export default function StatsPage() {
           {loading && <div className={styles.empty}>불러오는 중...</div>}
           {error && <p className={styles.error}>{error}</p>}
 
-          {!loading && !error && monthlyStats.length === 0 && (
+          {!loading && !error && visibleStats.length === 0 && (
             <p className={styles.empty}>아직 기록이 없습니다.</p>
           )}
 
           {!loading &&
             !error &&
-            monthlyStats.map((stat, index) => {
+            visibleStats.map((stat, index) => {
+              // 기간 밖이더라도 바로 이전 달이 있으면 증감 비교에 쓴다
               const prevStat = monthlyStats[index + 1];
               return (
                 <div key={stat.month} className={styles["monthly-stats-wrap"]}>

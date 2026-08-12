@@ -1,0 +1,60 @@
+@use "../../styles/abstracts/index" as *;
+
+.chart-wrap {
+  padding: 20px 12px 8px;
+  border-radius: 16px;
+  background: color("surface");
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  --chart-grid: #{color("border")};
+  --chart-axis: #{color("text-secondary")};
+
+  .legend {
+    @include flexbox(center, center, 16px);
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    font-size: rem(13);
+    color: color("text-secondary");
+
+    .legend-item {
+      @include flexbox(null, center, 6px);
+    }
+  }
+
+  .tooltip {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid color("border");
+    background: color("surface");
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    font-size: rem(13);
+
+    .tooltip-date {
+      margin-bottom: 6px;
+      font-weight: font-weight("bold");
+      color: color("text");
+    }
+    .tooltip-row {
+      @include flexbox(space-between, center, 12px);
+      & + .tooltip-row {
+        margin-top: 4px;
+      }
+    }
+    .tooltip-key {
+      color: color("text-secondary");
+    }
+    .tooltip-value {
+      font-weight: font-weight("bold");
+      font-variant-numeric: tabular-nums;
+      color: color("text");
+    }
+    .tooltip-note {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid color("border");
+      font-weight: font-weight("bold");
+      font-size: rem(12);
+      color: color("error");
+    }
+  }
+}
