@@ -1,6 +1,10 @@
-import { formatDateToYMD } from "@/utils/date";
+import { formatDateToYMD, getLatestAssessableMonth } from "@/utils/date";
 import type { DailyRecord } from "@/types/record";
-import type { MonthlyAssessment } from "@/types/assessment";
+import {
+  ASSESSMENT_QUESTIONS,
+  calculateAssessmentScore,
+  type MonthlyAssessment,
+} from "@/types/assessment";
 
 const DAYS_BACK = 150;
 const RECORD_PROBABILITY = 0.7;
@@ -58,16 +62,25 @@ function buildRecords(): DailyRecord[] {
 
 function buildAssessments(): MonthlyAssessment[] {
   const assessments: MonthlyAssessment[] = [];
-  const today = new Date();
+  const [latestYear, latestMonth] = getLatestAssessableMonth()
+    .split("-")
+    .map(Number);
 
+  // 말일이 지난 달만 평가 데이터를 만든다
   for (let i = 0; i < MONTHS_BACK; i++) {
-    const monthDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const monthDate = new Date(latestYear, latestMonth - 1 - i, 1);
+    const answers: Record<string, string> = {};
+
+    ASSESSMENT_QUESTIONS.forEach((question) => {
+      answers[question.id] =
+        question.options[randInt(0, question.options.length - 1)].id;
+    });
 
     assessments.push({
       id: crypto.randomUUID(),
       assessment_month: formatDateToYMD(monthDate),
-      total_score: randInt(40, 95),
-      answers: {},
+      total_score: calculateAssessmentScore(answers),
+      answers,
       created_at: monthDate.toISOString(),
     });
   }

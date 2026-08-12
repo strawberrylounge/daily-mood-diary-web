@@ -103,8 +103,10 @@ export const localStore: DataStore = {
 
   async getAssessmentForMonth(month) {
     const { assessments } = loadData();
-    const found = assessments.find((a) => a.assessment_month === month);
-    return { data: found ? { id: found.id } : null };
+    return {
+      data: assessments.find((a) => a.assessment_month === month) ?? null,
+      error: null,
+    };
   },
 
   async saveAssessment(month, score, answers, existingId) {

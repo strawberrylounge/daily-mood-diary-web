@@ -18,6 +18,12 @@
       color: color("text-secondary");
     }
   }
+  .loading {
+    padding: 60px 0;
+    font-size: rem(16);
+    color: color("text-secondary");
+    text-align: center;
+  }
   .card-question {
     max-width: 640px;
     margin: 20px auto;
@@ -118,6 +124,11 @@
       }
     }
 
+    .notice-text {
+      margin-bottom: 48px;
+      font-size: rem(16);
+      color: color("text-secondary");
+    }
     .feedback-wrap {
       margin-bottom: 48px;
       .emoji {

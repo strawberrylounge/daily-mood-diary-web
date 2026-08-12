@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Bar,
   BarChart,
@@ -14,7 +15,12 @@ import {
 import type { TooltipContentProps } from "recharts";
 
 import { useDataStore } from "@/lib/dataStore";
-import { formatDateToYMD } from "@/utils/date";
+import {
+  formatDateToYMD,
+  formatMonthLabel,
+  formatMonthShortLabel,
+  isAssessableMonth,
+} from "@/utils/date";
 import type { DailyRecord } from "@/types/record";
 
 import styles from "./stats.module.scss";
@@ -23,11 +29,6 @@ const SERIES_COLOR = {
   moodUp: "#2a78d6",
   moodDown: "#e34948",
 } as const;
-
-const formatMonthShort = (month: string) => {
-  const [, mon] = month.split("-");
-  return `${parseInt(mon, 10)}월`;
-};
 
 const MoodTooltip = ({ active, payload, label }: TooltipContentProps) => {
   if (!active || !payload?.length) return null;
@@ -87,7 +88,7 @@ interface MonthlyStats {
   exerciseCount: number;
   cryingCount: number;
   alcoholDays: number;
-  totalScore: number;
+  totalScore: number | null;
 }
 
 const CHANGE_ITEMS: { key: keyof MonthlyStats; label: string }[] = [
@@ -98,11 +99,6 @@ const CHANGE_ITEMS: { key: keyof MonthlyStats; label: string }[] = [
   { key: "cryingCount", label: "울음" },
   { key: "alcoholDays", label: "음주" },
 ];
-
-const formatMonth = (month: string) => {
-  const [year, mon] = month.split("-");
-  return `${year}년 ${parseInt(mon, 10)}월`;
-};
 
 export default function StatsPage() {
   const dataStore = useDataStore();
@@ -115,7 +111,7 @@ export default function StatsPage() {
       [...monthlyStats]
         .sort((a, b) => a.month.localeCompare(b.month))
         .map((stat) => ({
-          month: formatMonthShort(stat.month),
+          month: formatMonthShortLabel(stat.month),
           moodUp: stat.avgMoodUp ?? undefined,
           moodDown: stat.avgMoodDown ?? undefined,
         })),
@@ -211,7 +207,7 @@ export default function StatsPage() {
             exerciseCount: monthRecords.filter((r) => r.has_exercise).length,
             cryingCount: monthRecords.filter((r) => r.has_crying).length,
             alcoholDays: monthRecords.filter((r) => r.has_alcohol > 0).length,
-            totalScore: assessmentMap.get(month) ?? 0,
+            totalScore: assessmentMap.get(month) ?? null,
           };
         });
 
@@ -351,7 +347,7 @@ export default function StatsPage() {
                 <div key={stat.month} className={styles["monthly-stats-wrap"]}>
                   <hgroup className={styles.header}>
                     <h3 className={styles["month-text"]}>
-                      {formatMonth(stat.month)}
+                      {formatMonthLabel(stat.month)}
                     </h3>
                     <span className={styles["count-text"]}>
                       {stat.recordCount}일 기록됨
@@ -453,13 +449,25 @@ export default function StatsPage() {
                           </span>
                         </li>
                       )}
-                      {stat.totalScore > 0 && (
+                      {/* 말일이 지난 달만 노출. 이미 평가했으면 점수 + 수정, 아니면 평가하기 */}
+                      {(stat.totalScore !== null ||
+                        isAssessableMonth(stat.month)) && (
                         <li className={styles["stat-item"]}>
                           <span className={styles["stat-label"]}>
                             월말평가 총점
                           </span>
-                          <span className={styles["stat-value"]}>
-                            {stat.totalScore}점
+                          <span className={styles["assessment-wrap"]}>
+                            {stat.totalScore !== null && (
+                              <span className={styles["stat-value"]}>
+                                {stat.totalScore}점
+                              </span>
+                            )}
+                            <Link
+                              href={`/assessment?month=${stat.month}`}
+                              className={styles["btn-assessment"]}
+                            >
+                              {stat.totalScore !== null ? "수정" : "평가하기"}
+                            </Link>
                           </span>
                         </li>
                       )}

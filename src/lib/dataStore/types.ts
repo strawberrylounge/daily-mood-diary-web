@@ -1,4 +1,5 @@
 import type { DailyRecord } from "@/types/record";
+import type { MonthlyAssessment } from "@/types/assessment";
 
 export type DailyRecordPayload = Omit<
   DailyRecord,
@@ -32,9 +33,10 @@ export interface DataStore {
     data: AssessmentSummary[] | null;
     error: string | null;
   }>;
-  getAssessmentForMonth(
-    month: string,
-  ): Promise<{ data: { id: string } | null }>;
+  getAssessmentForMonth(month: string): Promise<{
+    data: MonthlyAssessment | null;
+    error: string | null;
+  }>;
   saveAssessment(
     month: string,
     score: number,

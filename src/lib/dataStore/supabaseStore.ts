@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase";
 import type { DailyRecord } from "@/types/record";
+import type { MonthlyAssessment } from "@/types/assessment";
 
 import type { AssessmentSummary, DataStore } from "./types";
 
@@ -76,13 +77,16 @@ export const supabaseStore: DataStore = {
   },
 
   async getAssessmentForMonth(month) {
-    const { data } = await getSupabaseClient()
+    const { data, error } = await getSupabaseClient()
       .from("monthly_assessments")
-      .select("id")
+      .select("*")
       .eq("assessment_month", month)
       .maybeSingle();
 
-    return { data: data as { id: string } | null };
+    return {
+      data: data as MonthlyAssessment | null,
+      error: error?.message ?? null,
+    };
   },
 
   async saveAssessment(month, score, answers, existingId) {

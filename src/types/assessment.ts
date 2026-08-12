@@ -22,6 +22,16 @@ export interface MonthlyAssessment {
   updated_at?: string;
 }
 
+/** 선택한 답변(questionId -> optionId)으로 총점 계산 */
+export function calculateAssessmentScore(
+  answers: Record<string, string>,
+): number {
+  return ASSESSMENT_QUESTIONS.reduce((sum, question) => {
+    const option = question.options.find((o) => o.id === answers[question.id]);
+    return sum + (option?.score ?? 0);
+  }, 0);
+}
+
 export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
   {
     id: "q1",
