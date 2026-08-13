@@ -211,14 +211,29 @@ export default function RecordForm({
     setForm((prev) => ({ ...prev, [stateKey]: !prev[stateKey] }));
   };
 
-  const buildPayload = () => {
-    const moodUp = form.selectedMoods.filter((m) => m >= 0);
-    const moodDown = form.selectedMoods.filter((m) => m < 0);
+  const buildMoodScores = () => {
+    const moods = form.selectedMoods;
 
+    // 혼재(2개 선택): 부호와 무관하게 큰 값을 up, 작은 값을 down에 저장한다.
+    // 부호로 나누면 둘 다 같은 부호일 때 한쪽 값이 유실된다.
+    if (moods.length === 2) {
+      return {
+        mood_up_score: Math.max(moods[0], moods[1]),
+        mood_down_score: Math.min(moods[0], moods[1]),
+      };
+    }
+
+    const single = moods.length > 0 ? moods[0] : null;
+    return {
+      mood_up_score: single !== null && single >= 0 ? single : null,
+      mood_down_score: single !== null && single < 0 ? single : null,
+    };
+  };
+
+  const buildPayload = () => {
     return {
       record_date: dateStr,
-      mood_up_score: moodUp.length > 0 ? moodUp[0] : null,
-      mood_down_score: moodDown.length > 0 ? moodDown[0] : null,
+      ...buildMoodScores(),
       anxiety_score: form.anxiety ?? 0,
       anger_score: form.anger ?? 0,
       interest_score: form.interest ?? 0,
