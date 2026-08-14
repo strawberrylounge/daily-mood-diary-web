@@ -18,10 +18,16 @@
       font-weight: font-weight("bold");
       font-size: rem(18);
       color: color("text");
+      @include mobile {
+        // font-size: rem(16);
+      }
     }
     .nav {
       ul {
         @include flexbox(null, center, 8px);
+        @include mobile {
+          gap: 4px;
+        }
         li {
           .nav-link {
             padding: 8px 16px;
@@ -31,6 +37,10 @@
             color: color("text-secondary");
             &:hover {
               background: color("background");
+            }
+            @include mobile {
+              padding: 4px 8px;
+              font-size: rem(14);
             }
 
             &.active {

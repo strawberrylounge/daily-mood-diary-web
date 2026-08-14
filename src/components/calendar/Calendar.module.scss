@@ -3,7 +3,8 @@
 .container {
   @include flexbox(center);
   // height: 100%;
-  :global(.react-calendar) {
+  :global(.react-calendar),
+  .placeholder {
     width: 100%;
     height: 800px;
     padding: 20px;
