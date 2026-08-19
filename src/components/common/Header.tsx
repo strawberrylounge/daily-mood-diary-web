@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
 
 import styles from "./Header.module.scss";
+
+import logo from "../../assets/images/logo.png";
 
 const NAV_ITEMS = [
   { href: "/", label: "홈" },
@@ -27,7 +30,7 @@ export default function Header() {
     <header id="header" className={styles.header}>
       <div className={`inner ${styles.inner}`}>
         <Link href="/" className={styles.logo}>
-          Daily Mood Diary
+          <Image src={logo} style={{ width: "180px", height: "auto" }} alt="" />
         </Link>
         <nav className={styles.nav}>
           <ul>

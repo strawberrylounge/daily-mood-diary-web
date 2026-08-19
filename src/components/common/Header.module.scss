@@ -15,12 +15,7 @@
     @include flexbox(space-between, center);
     height: 100%;
     .logo {
-      font-weight: font-weight("bold");
-      font-size: rem(18);
-      color: color("text");
-      @include mobile {
-        // font-size: rem(16);
-      }
+      display: flex;
     }
     .nav {
       ul {
