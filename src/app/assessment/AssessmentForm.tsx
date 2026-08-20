@@ -49,14 +49,14 @@ export default function AssessmentForm({ monthParam }: AssessmentFormProps) {
   const [showResult, setShowResult] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
-  // 오늘 날짜에 의존하는 판별이라 하이드레이션 불일치를 피하려고 마운트 후에 처리한다
+  // 오늘 날짜에 의존하는 판별이라 하이드레이션 불일치를 피하려고 마운트 후에 처리
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       setIsLoading(true);
 
-      // 아직 끝나지 않은 달(말일 전)은 평가할 수 없다
+      // 아직 끝나지 않은 달(말일 전)은 평가할 수 없음
       if (
         monthParam &&
         (!isValidMonthKey(monthParam) || !isAssessableMonth(monthParam))
@@ -69,7 +69,7 @@ export default function AssessmentForm({ monthParam }: AssessmentFormProps) {
       const resolvedMonth = monthParam ?? getLatestAssessableMonth();
       setMonthKey(resolvedMonth);
 
-      // 기존 평가가 있으면 선택했던 답변을 미리 채워둔다
+      // 기존 평가가 있으면 선택했던 답변을 미리 채우기
       const { data, error: loadError } = await dataStore.getAssessmentForMonth(
         monthKeyToFirstDay(resolvedMonth),
       );
