@@ -23,10 +23,22 @@ export function isValidMonthKey(monthKey: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(monthKey);
 }
 
+/** YYYY-MM -> 해당 월의 1일 Date (자정 기준) */
+export function getMonthFirstDay(monthKey: string): Date {
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year, month - 1, 1);
+}
+
 /** YYYY-MM -> 해당 월의 말일 Date (자정 기준) */
 export function getMonthLastDay(monthKey: string): Date {
   const [year, month] = monthKey.split("-").map(Number);
   return new Date(year, month, 0);
+}
+
+/** YYYY-MM에서 delta개월 이동한 월 키. delta가 음수면 과거로 */
+export function addMonths(monthKey: string, delta: number): string {
+  const [year, month] = monthKey.split("-").map(Number);
+  return formatMonthKey(new Date(year, month - 1 + delta, 1));
 }
 
 /** 오늘 자정 기준 Date */
@@ -73,14 +85,6 @@ export function getHomeAssessmentMonth(today = new Date()): string | null {
   }
 
   return null;
-}
-
-/**
- * 오늘 포함 monthsBack개월 구간의 시작일.
- * 달 단위로 끊어서 1개월 = 이번 달 1일, 3개월 = 2개월 전 1일이 된다.
- */
-export function getRangeStartDate(monthsBack: number, today = new Date()): Date {
-  return new Date(today.getFullYear(), today.getMonth() - (monthsBack - 1), 1);
 }
 
 /** start ~ end(포함) 사이의 모든 날짜를 YYYY-MM-DD로 */

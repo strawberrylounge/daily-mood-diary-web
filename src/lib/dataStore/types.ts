@@ -29,6 +29,11 @@ export interface DataStore {
   getRecordsSince(
     sinceDate: string,
   ): Promise<{ data: DailyRecord[] | null; error: string | null }>;
+  /** 가장 오래된 기록의 날짜 (기록이 없으면 null). 통계에서 과거로 더 이동할 수 있는지 판단에 쓴다 */
+  getEarliestRecordDate(): Promise<{
+    data: string | null;
+    error: string | null;
+  }>;
   getAssessmentSummaries(): Promise<{
     data: AssessmentSummary[] | null;
     error: string | null;

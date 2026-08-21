@@ -88,6 +88,19 @@ export const localStore: DataStore = {
     };
   },
 
+  async getEarliestRecordDate() {
+    const { records } = loadData();
+    if (!records.length) return { data: null, error: null };
+
+    return {
+      data: records.reduce(
+        (earliest, r) => (r.record_date < earliest ? r.record_date : earliest),
+        records[0].record_date,
+      ),
+      error: null,
+    };
+  },
+
   async getAssessmentSummaries() {
     const { assessments } = loadData();
     return {

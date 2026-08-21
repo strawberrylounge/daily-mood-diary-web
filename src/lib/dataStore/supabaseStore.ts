@@ -64,6 +64,18 @@ export const supabaseStore: DataStore = {
     return { data: data as DailyRecord[] | null, error: error?.message ?? null };
   },
 
+  async getEarliestRecordDate() {
+    const { data, error } = await getSupabaseClient()
+      .from("daily_records")
+      .select("record_date")
+      .order("record_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) return { data: null, error: error.message };
+    return { data: (data?.record_date as string) ?? null, error: null };
+  },
+
   async getAssessmentSummaries() {
     const { data, error } = await getSupabaseClient()
       .from("monthly_assessments")

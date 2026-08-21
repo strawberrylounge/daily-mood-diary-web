@@ -5,16 +5,22 @@ import Link from "next/link";
 
 import MoodTrendChart from "@/components/stats/MoodTrendChart";
 
+import { useIsMounted } from "@/hooks/useIsMounted";
 import { useDataStore } from "@/lib/dataStore";
 import {
+  addMonths,
   formatDateToYMD,
   formatMonthKey,
   formatMonthLabel,
-  getRangeStartDate,
+  formatMonthShortLabel,
+  getMonthFirstDay,
+  getMonthLastDay,
   isAssessableMonth,
 } from "@/utils/date";
 import { buildMoodTrend } from "@/utils/moodTrend";
 import type { DailyRecord } from "@/types/record";
+
+import IconChevron from "@/assets/icons/chevron.svg";
 
 import styles from "./stats.module.scss";
 
@@ -25,8 +31,11 @@ const RANGE_OPTIONS = [
   { months: 12, label: "1년" },
 ] as const;
 
-/** 항상 1년치를 받아두고 기간 전환은 클라이언트에서 잘라 쓴다 (탭 전환 시 재조회 없음) */
-const MAX_RANGE_MONTHS = 12;
+/**
+ * 한 번에 받아두는 구간(개월). 기본은 1년치라 기간 탭 전환만으로는 재조회가 없고,
+ * 화살표로 그보다 과거까지 거슬러 올라갔을 때만 이 단위로 구간을 넓혀 다시 받아온다.
+ */
+const LOAD_CHUNK_MONTHS = 12;
 
 interface MonthlyStats {
   month: string;
@@ -124,37 +133,76 @@ export default function StatsPage() {
     () => new Map<string, number>(),
   );
   const [rangeMonths, setRangeMonths] = useState<number>(1);
+  /** 기록이 존재하는 가장 이른 월. 과거로 더 이동할 수 있는지 판단에 쓴다 */
+  const [earliestMonth, setEarliestMonth] = useState<string | null>(null);
+  /** 이번 달 기준으로 과거로 이동한 개월 수. 0이면 이번 달이 구간의 끝 */
+  const [monthOffset, setMonthOffset] = useState(0);
+  /** 지금 조회해 둔 구간의 길이(개월). 과거로 이동하다 모자라면 넓힌다 */
+  const [loadMonths, setLoadMonths] = useState(LOAD_CHUNK_MONTHS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 통계도 정적 프리렌더 라우트라 서버에서 "오늘"을 읽으면 빌드 시점 날짜가 HTML에 굳는다
+  const isMounted = useIsMounted();
+  const currentMonth = isMounted ? formatMonthKey(new Date()) : null;
+
+  // 보고 있는 구간: [startMonth, anchorMonth]
+  const anchorMonth = currentMonth
+    ? addMonths(currentMonth, -monthOffset)
+    : null;
+  const startMonth = anchorMonth
+    ? addMonths(anchorMonth, -(rangeMonths - 1))
+    : null;
+  const loadedSinceMonth = currentMonth
+    ? addMonths(currentMonth, -(loadMonths - 1))
+    : null;
+
+  /** 새로 보려는 구간이 조회해 둔 범위를 벗어나면 조회 구간을 한 덩어리씩 넓힌다 */
+  const ensureLoadRange = (offset: number, months: number) => {
+    const needed = offset + months;
+    if (needed <= loadMonths) return;
+    setLoadMonths(Math.ceil(needed / LOAD_CHUNK_MONTHS) * LOAD_CHUNK_MONTHS);
+  };
+
   useEffect(() => {
+    if (!loadedSinceMonth) return;
+
     let cancelled = false;
 
     const load = async () => {
       setLoading(true);
       setError(null);
 
+      // 첫 달의 "지난 달 대비 증감"까지 계산하려면 한 달 앞에서부터 받아야 한다
+      const sinceDate = formatDateToYMD(
+        getMonthFirstDay(addMonths(loadedSinceMonth, -1)),
+      );
+
       const [
         { data: loadedRecords, error: recordsError },
         { data: assessments, error: assessmentsError },
+        { data: earliestDate, error: earliestError },
       ] = await Promise.all([
-        dataStore.getRecordsSince(
-          formatDateToYMD(getRangeStartDate(MAX_RANGE_MONTHS)),
-        ),
+        dataStore.getRecordsSince(sinceDate),
         dataStore.getAssessmentSummaries(),
+        dataStore.getEarliestRecordDate(),
       ]);
 
       if (cancelled) return;
 
-      if (recordsError || assessmentsError) {
+      if (recordsError || assessmentsError || earliestError) {
         setError(
-          recordsError ?? assessmentsError ?? "통계를 불러오지 못했습니다.",
+          recordsError ??
+            assessmentsError ??
+            earliestError ??
+            "통계를 불러오지 못했습니다.",
         );
         setLoading(false);
         return;
       }
 
       setRecords(loadedRecords ?? []);
+      setEarliestMonth(earliestDate ? earliestDate.substring(0, 7) : null);
       setAssessmentScores(
         new Map(
           (assessments ?? []).map((a) => [
@@ -171,29 +219,65 @@ export default function StatsPage() {
     return () => {
       cancelled = true;
     };
-  }, [dataStore]);
+  }, [dataStore, loadedSinceMonth]);
 
-  // 증감 비교를 위해 통계는 받아온 1년 전체로 계산하고, 노출만 선택한 기간으로 자른다
+  // 증감 비교를 위해 통계는 받아온 구간 전체로 계산하고, 노출만 보고 있는 구간으로 자른다
   const monthlyStats = useMemo(
     () => buildMonthlyStats(records, assessmentScores),
     [records, assessmentScores],
   );
-
-  const rangeStart = useMemo(
-    () => getRangeStartDate(rangeMonths),
-    [rangeMonths],
+  const statsByMonth = useMemo(
+    () => new Map(monthlyStats.map((stat) => [stat.month, stat])),
+    [monthlyStats],
   );
 
-  const trendPoints = useMemo(
-    () => buildMoodTrend(records, rangeStart, new Date()),
-    [records, rangeStart],
-  );
+  const trendPoints = useMemo(() => {
+    if (!startMonth || !anchorMonth) return [];
+
+    // 이번 달을 보고 있으면 오늘까지, 지난 구간이면 그 달 말일까지 그린다
+    const endDate =
+      anchorMonth === currentMonth ? new Date() : getMonthLastDay(anchorMonth);
+
+    return buildMoodTrend(records, getMonthFirstDay(startMonth), endDate);
+  }, [records, startMonth, anchorMonth, currentMonth]);
   const hasMoodData = trendPoints.some((p) => p.mood !== null);
 
-  const rangeStartMonth = formatMonthKey(rangeStart);
-  const visibleStats = monthlyStats.filter(
-    (stat) => stat.month >= rangeStartMonth,
+  const visibleStats =
+    startMonth && anchorMonth
+      ? monthlyStats.filter(
+          (stat) => stat.month >= startMonth && stat.month <= anchorMonth,
+        )
+      : [];
+
+  const canGoPrev = Boolean(
+    startMonth && earliestMonth && earliestMonth < startMonth,
   );
+  const canGoNext = monthOffset > 0;
+
+  // 화살표는 보고 있는 구간 길이만큼 통째로 이동한다 (1개월이면 한 달씩, 1년이면 1년씩)
+  const goPrev = () => {
+    const nextOffset = monthOffset + rangeMonths;
+    ensureLoadRange(nextOffset, rangeMonths);
+    setMonthOffset(nextOffset);
+  };
+  const goNext = () => setMonthOffset(Math.max(0, monthOffset - rangeMonths));
+
+  const changeRange = (months: number) => {
+    ensureLoadRange(monthOffset, months);
+    setRangeMonths(months);
+  };
+
+  const rangeLabel = (() => {
+    if (!startMonth || !anchorMonth) return "";
+    if (startMonth === anchorMonth) return formatMonthLabel(anchorMonth);
+
+    const sameYear = startMonth.substring(0, 4) === anchorMonth.substring(0, 4);
+    const end = sameYear
+      ? formatMonthShortLabel(anchorMonth)
+      : formatMonthLabel(anchorMonth);
+
+    return `${formatMonthLabel(startMonth)} ~ ${end}`;
+  })();
 
   const renderChange = (current: number, previous: number | undefined) => {
     const hasPrev = previous !== undefined;
@@ -228,11 +312,34 @@ export default function StatsPage() {
               className={`${styles["range-tab"]} ${
                 rangeMonths === option.months ? styles.selected : ""
               }`}
-              onClick={() => setRangeMonths(option.months)}
+              onClick={() => changeRange(option.months)}
             >
               {option.label}
             </button>
           ))}
+        </div>
+
+        {/* 구간 이동: 지난 달/지난 구간도 화살표로 되짚어 볼 수 있다 */}
+        <div className={styles["range-nav"]}>
+          <button
+            type="button"
+            className={styles["nav-btn"]}
+            onClick={goPrev}
+            disabled={!canGoPrev}
+            aria-label="이전 기간"
+          >
+            <IconChevron style={{ transform: "rotate(180deg)" }} />
+          </button>
+          <span className={styles["range-label"]}>{rangeLabel}</span>
+          <button
+            type="button"
+            className={styles["nav-btn"]}
+            onClick={goNext}
+            disabled={!canGoNext}
+            aria-label="다음 기간"
+          >
+            <IconChevron />
+          </button>
         </div>
 
         {/* 차트 영역 */}
@@ -263,14 +370,14 @@ export default function StatsPage() {
           {error && <p className={styles.error}>{error}</p>}
 
           {!loading && !error && visibleStats.length === 0 && (
-            <p className={styles.empty}>아직 기록이 없습니다.</p>
+            <p className={styles.empty}>이 기간에는 기록이 없습니다.</p>
           )}
 
           {!loading &&
             !error &&
-            visibleStats.map((stat, index) => {
-              // 기간 밖이더라도 바로 이전 달이 있으면 증감 비교에 쓴다
-              const prevStat = monthlyStats[index + 1];
+            visibleStats.map((stat) => {
+              // 보고 있는 구간 밖이더라도 직전 달 기록이 있으면 증감 비교에 쓴다
+              const prevStat = statsByMonth.get(addMonths(stat.month, -1));
               return (
                 <div key={stat.month} className={styles["monthly-stats-wrap"]}>
                   <hgroup className={styles.header}>

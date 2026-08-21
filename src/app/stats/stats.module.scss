@@ -47,6 +47,38 @@
     }
   }
 
+  /* 구간 이동 (이전/다음 기간) */
+  .range-nav {
+    @include flexbox(space-between, center, 8px);
+    margin-top: 12px;
+
+    .nav-btn {
+      @include flexbox(center, center);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      color: color("text-secondary");
+
+      svg path {
+        fill: currentColor;
+      }
+      &:hover:not(:disabled) {
+        background: rgba(color("primary"), 0.08);
+        color: color("primary");
+      }
+      &:disabled {
+        opacity: 0.25;
+        cursor: default;
+      }
+    }
+    .range-label {
+      min-height: rem(20);
+      font-weight: font-weight("bold");
+      font-size: rem(16);
+      color: color("text");
+    }
+  }
+
   /* 차트 없을 때 */
   .chart-empty {
     @include flexbox(center, center);
